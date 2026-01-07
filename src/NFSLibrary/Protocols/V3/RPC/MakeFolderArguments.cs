@@ -4,47 +4,71 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for directory creation operations for NFS v3 protocol operations.
+    /// </summary>
     public class MakeFolderArguments : XdrAble
     {
-        private ItemOperationArguments _where;
-        private MakeAttributes _attributes;
+        private ItemOperationArguments _Where;
+        private MakeAttributes _Attributes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MakeFolderArguments"/> class.
+        /// </summary>
         public MakeFolderArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MakeFolderArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public MakeFolderArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._where.xdrEncode(xdr);
-            this._attributes.xdrEncode(xdr);
+            this._Where.XdrEncode(xdr);
+            this._Attributes.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._where = new ItemOperationArguments(xdr);
-            this._attributes = new MakeAttributes(xdr);
+            this._Where = new ItemOperationArguments(xdr);
+            this._Attributes = new MakeAttributes(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the location (directory and name) where the directory should be created.
+        /// </summary>
         public ItemOperationArguments Where
         {
             get
-            { return this._where; }
+            { return this._Where; }
             set
-            { this._where = value; }
+            { this._Where = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the attributes for the new directory.
+        /// </summary>
         public MakeAttributes Attributes
         {
             get
-            { return this._attributes; }
+            { return this._Attributes; }
             set
-            { this._attributes = value; }
+            { this._Attributes = value; }
         }
     }
 

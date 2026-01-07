@@ -4,94 +4,109 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using System;
-
 namespace NFSLibrary.Protocols.Commons
 {
+    using System;
+    /// <summary>
+    /// Represents the attributes of an NFS file or directory.
+    /// </summary>
     public class NFSAttributes
     {
-        private DateTime _cdateTime;
-        private DateTime _adateTime;
-        private DateTime _mdateTime;
-        private NFSItemTypes _type;
-        private NFSPermission _mode;
-        private long _size;
-        private Byte[] _handle;
-        //for nfs 4
-        //nfs_fh4 _fh;
-
+        private DateTime _CDateTime;
+        private DateTime _ADateTime;
+        private DateTime _MDateTime;
+        private NFSItemTypes _Type;
+        private NFSPermission _Mode;
+        private long _Size;
+        private Byte[] _Handle;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSAttributes"/> class.
+        /// </summary>
+        /// <param name="cdateTime">The creation time as Unix timestamp (seconds since epoch).</param>
+        /// <param name="adateTime">The last access time as Unix timestamp (seconds since epoch).</param>
+        /// <param name="mdateTime">The last modification time as Unix timestamp (seconds since epoch).</param>
+        /// <param name="type">The type of the NFS item.</param>
+        /// <param name="mode">The permission mode of the item.</param>
+        /// <param name="size">The size of the item in bytes.</param>
+        /// <param name="handle">The NFS file handle.</param>
         public NFSAttributes(int cdateTime, int adateTime, int mdateTime, NFSItemTypes type, NFSPermission mode, long size, byte[] handle)
         {
-            this._cdateTime = new System.DateTime(1970, 1, 1).AddSeconds(cdateTime);
-            this._adateTime = new System.DateTime(1970, 1, 1).AddSeconds(adateTime);
-            this._mdateTime = new System.DateTime(1970, 1, 1).AddSeconds(mdateTime);
-            this._type = type;
-            this._size = size;
-            this._mode = mode;
-            this._handle = (Byte[])handle.Clone();
+            this._CDateTime = new System.DateTime(1970, 1, 1).AddSeconds(cdateTime);
+            this._ADateTime = new System.DateTime(1970, 1, 1).AddSeconds(adateTime);
+            this._MDateTime = new System.DateTime(1970, 1, 1).AddSeconds(mdateTime);
+            this._Type = type;
+            this._Size = size;
+            this._Mode = mode;
+            this._Handle = (Byte[])handle.Clone();
         }
 
-        //TODO maybe we don't need this but anyway for nfs 4
-        /*public NFSAttributes(int cdateTime, int adateTime, int mdateTime, NFSItemTypes type, NFSPermission mode, long size,nfs_fh4 fh)
-        {
-            this._cdateTime = new System.DateTime(1970, 1, 1).AddSeconds(cdateTime);
-            this._adateTime = new System.DateTime(1970, 1, 1).AddSeconds(adateTime);
-            this._mdateTime = new System.DateTime(1970, 1, 1).AddSeconds(mdateTime);
-            this._type = type;
-            this._size = size;
-            this._mode = mode;
-            this._handle = (Byte[])fh.value.Clone();
-            //this._fh = fh;
-        }*/
-
+        /// <summary>
+        /// Gets the creation date and time of the item.
+        /// </summary>
         public DateTime CreateDateTime
         {
             get
-            { return this._cdateTime; }
+            { return this._CDateTime; }
         }
 
+        /// <summary>
+        /// Gets the last access date and time of the item.
+        /// </summary>
         public DateTime LastAccessedDateTime
         {
             get
-            { return this._adateTime; }
+            { return this._ADateTime; }
         }
 
+        /// <summary>
+        /// Gets the last modification date and time of the item.
+        /// </summary>
         public DateTime ModifiedDateTime
         {
             get
-            { return this._mdateTime; }
+            { return this._MDateTime; }
         }
 
+        /// <summary>
+        /// Gets the type of the NFS item (file, directory, etc.).
+        /// </summary>
         public NFSItemTypes NFSType
         {
             get
-            { return this._type; }
+            { return this._Type; }
         }
 
+        /// <summary>
+        /// Gets the permission mode of the item.
+        /// </summary>
         public NFSPermission Mode
         {
             get
-            { return this._mode; }
+            { return this._Mode; }
         }
 
+        /// <summary>
+        /// Gets the size of the item in bytes.
+        /// </summary>
         public long Size
         {
             get
-            { return this._size; }
+            { return this._Size; }
         }
 
+        /// <summary>
+        /// Gets the NFS file handle for this item.
+        /// </summary>
         public Byte[] Handle
         {
             get
-            { return this._handle; }
+            { return this._Handle; }
         }
 
-        /*public nfs_fh4 fh
-        {
-            get
-            { return this._fh; }
-        }*/
-
+        /// <summary>
+        /// Returns a string representation of the NFS attributes.
+        /// </summary>
+        /// <returns>A string containing all attribute values.</returns>
         public override string ToString()
         {
             System.Text.StringBuilder HandleString = new System.Text.StringBuilder();

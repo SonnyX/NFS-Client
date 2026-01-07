@@ -4,37 +4,58 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for file system statistics queries for NFS v3 protocol operations.
+    /// </summary>
     public class FSStatisticsArguments : XdrAble
     {
-        private NFSHandle _fsroot;
+        private NFSHandle _Fsroot;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FSStatisticsArguments"/> class.
+        /// </summary>
         public FSStatisticsArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FSStatisticsArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public FSStatisticsArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
-        { this._fsroot.xdrEncode(xdr); }
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
+        { this._Fsroot.XdrEncode(xdr); }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._fsroot = new NFSHandle();
-            this._fsroot.Version = V3.RPC.NFSv3Protocol.NFS_V3;
-            this._fsroot.xdrDecode(xdr);
+            this._Fsroot = new NFSHandle();
+            this._Fsroot.Version = V3.RPC.NFSv3Protocol.NFS_V3;
+            this._Fsroot.XdrDecode(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the file system root handle to query statistics for.
+        /// </summary>
         public NFSHandle FSRoot
         {
             get
-            { return this._fsroot; }
+            { return this._Fsroot; }
             set
-            { this._fsroot = value; }
+            { this._Fsroot = value; }
         }
     }
 

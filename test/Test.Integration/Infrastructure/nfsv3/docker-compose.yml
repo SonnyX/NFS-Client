@@ -1,0 +1,51 @@
+# NFSv3 Server for Integration Testing
+# Uses erichough/nfs-server image with NFSv3 configuration
+#
+# Usage:
+#   docker-compose up -d     # Start server
+#   docker-compose down -v   # Stop server and remove volumes
+#   docker-compose logs -f   # View logs
+#
+# Ports:
+#   - 22049: NFS (TCP/UDP)
+#   - 20111: Portmapper (TCP/UDP)
+#   - 22765-22767: NFS callbacks (TCP/UDP)
+
+services:
+  nfsv3-server:
+    image: erichough/nfs-server:latest
+    container_name: nfs-integration-v3
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      # Use named volumes (not bind mounts) for NFS export compatibility
+      - nfsv3-data:/export
+    ports:
+      # NFS port
+      - "22049:2049/tcp"
+      - "22049:2049/udp"
+      # Portmapper
+      - "20111:111/tcp"
+      - "20111:111/udp"
+      # NFS callback ports
+      - "22765:32765/tcp"
+      - "22765:32765/udp"
+      - "22767:32767/tcp"
+      - "22767:32767/udp"
+    environment:
+      # Enable NFSv3
+      NFS_VERSION: "3"
+      # Disable NFSv4 for clean v3 testing
+      NFS_DISABLE_VERSION_4: "1"
+      # Export the data volume
+      NFS_EXPORT_0: "/export *(rw,sync,no_subtree_check,no_root_squash,insecure)"
+    healthcheck:
+      test: ["CMD", "showmount", "-e", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  nfsv3-data:
+    driver: local

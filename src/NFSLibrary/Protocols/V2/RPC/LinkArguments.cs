@@ -4,46 +4,69 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    /// <summary>
+    /// Represents arguments for NFS v2 link operations.
+    /// </summary>
     public class LinkArguments : XdrAble
     {
-        private NFSHandle _from;
-        private ItemOperationArguments _to;
+        private NFSHandle _From;
+        private ItemOperationArguments _To;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LinkArguments"/> class.
+        /// </summary>
         public LinkArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LinkArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public LinkArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._from.xdrEncode(xdr);
-            this._to.xdrEncode(xdr);
+            this._From.XdrEncode(xdr);
+            this._To.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._from = new NFSHandle();
-            this._from.Version = V2.RPC.NFSv2Protocol.NFS_VERSION;
-            this._from.xdrDecode(xdr);
-            this._to = new ItemOperationArguments(xdr);
+            this._From = new NFSHandle();
+            this._From.Version = V2.RPC.NFSv2Protocol.NFS_VERSION;
+            this._From.XdrDecode(xdr);
+            this._To = new ItemOperationArguments(xdr);
         }
 
+        /// <summary>
+        /// Gets the source file handle.
+        /// </summary>
         public NFSHandle From
         {
             get
-            { return this._from; }
+            { return this._From; }
         }
 
+        /// <summary>
+        /// Gets the destination link location.
+        /// </summary>
         public ItemOperationArguments To
         {
             get
-            { return this._to; }
+            { return this._To; }
         }
     }
 

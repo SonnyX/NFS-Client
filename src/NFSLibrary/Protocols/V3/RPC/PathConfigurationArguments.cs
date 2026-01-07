@@ -4,37 +4,58 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for path configuration queries for NFS v3 protocol operations.
+    /// </summary>
     public class PathConfigurationArguments : XdrAble
     {
-        private NFSHandle _obj;
+        private NFSHandle _Obj;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PathConfigurationArguments"/> class.
+        /// </summary>
         public PathConfigurationArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PathConfigurationArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public PathConfigurationArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
-        { this._obj.xdrEncode(xdr); }
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
+        { this._Obj.XdrEncode(xdr); }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._obj = new NFSHandle();
-            this._obj.Version = V3.RPC.NFSv3Protocol.NFS_V3;
-            this._obj.xdrDecode(xdr);
+            this._Obj = new NFSHandle();
+            this._Obj.Version = V3.RPC.NFSv3Protocol.NFS_V3;
+            this._Obj.XdrDecode(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the file or directory handle to query path configuration for.
+        /// </summary>
         public NFSHandle Handle
         {
             get
-            { return this._obj; }
+            { return this._Obj; }
             set
-            { this._obj = value; }
+            { this._Obj = value; }
         }
     }
 

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>12.0</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Test.Interactive</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\NFSLibrary\NFSLibrary.csproj" />
+	</ItemGroup>
+
+	<!-- Copy infrastructure files to output directory -->
+	<ItemGroup>
+		<None Include="..\Test.Integration\Infrastructure\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="Infrastructure" />
+	</ItemGroup>
+
+</Project>

@@ -13,7 +13,7 @@
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
         private static string _Hostname = "192.168.254.129";
-        private static NfsClient.NfsVersion _Version = NfsClient.NfsVersion.V3;
+        private static NfsVersion _Version = NfsVersion.V3;
         private static string _Share = "/srv";
 
         /*

@@ -6,74 +6,113 @@
 
 namespace NFSLibrary.Protocols.Commons
 {
+    /// <summary>
+    /// Represents Unix-style file permissions (read/write/execute for user/group/other).
+    /// </summary>
     public class NFSPermission
     {
-        private byte _user;
-        private byte _group;
-        private byte _other;
+        private byte _User;
+        private byte _Group;
+        private byte _Other;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSPermission"/> class with no permissions set.
+        /// </summary>
         public NFSPermission()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSPermission"/> class with the specified permissions.
+        /// </summary>
+        /// <param name="UserAccess">The user (owner) permission bits (0-7).</param>
+        /// <param name="GroupAccess">The group permission bits (0-7).</param>
+        /// <param name="OtherAccess">The other (world) permission bits (0-7).</param>
         public NFSPermission(byte UserAccess, byte GroupAccess, byte OtherAccess)
         {
-            this._user = UserAccess;
-            this._group = GroupAccess;
-            this._other = OtherAccess;
+            this._User = UserAccess;
+            this._Group = GroupAccess;
+            this._Other = OtherAccess;
         }
 
+        /// <summary>
+        /// Gets or sets the user (owner) permission bits.
+        /// </summary>
+        /// <remarks>
+        /// Values: 0=none, 1=execute, 2=write, 3=write+execute, 4=read, 5=read+execute, 6=read+write, 7=all.
+        /// </remarks>
         public byte UserAccess
         {
             get
-            { return this._user; }
+            { return this._User; }
             set
-            { this._user = value; }
+            { this._User = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the group permission bits.
+        /// </summary>
+        /// <remarks>
+        /// Values: 0=none, 1=execute, 2=write, 3=write+execute, 4=read, 5=read+execute, 6=read+write, 7=all.
+        /// </remarks>
         public byte GroupAccess
         {
             get
-            { return this._group; }
+            { return this._Group; }
             set
-            { this._group = value; }
+            { this._Group = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the other (world) permission bits.
+        /// </summary>
+        /// <remarks>
+        /// Values: 0=none, 1=execute, 2=write, 3=write+execute, 4=read, 5=read+execute, 6=read+write, 7=all.
+        /// </remarks>
         public byte OtherAccess
         {
             get
-            { return this._other; }
+            { return this._Other; }
             set
-            { this._other = value; }
+            { this._Other = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the permission mode as an octal integer (e.g., 755, 644).
+        /// </summary>
+        /// <remarks>
+        /// Returns -1 if all permission bytes are 0xff (unset).
+        /// </remarks>
         public int Mode
         {
             get
             {
-                if (_user == 0xff && _group == 0xff && _other == 0xff)
+                if (_User == 0xff && _Group == 0xff && _Other == 0xff)
                     return -1;
                 /* Calculate Permission */
                 return
-                    (((int)this._user) << 6) | (((int)this._group) << 3) | ((int)this._other);
+                    (((int)this._User) << 6) | (((int)this._Group) << 3) | ((int)this._Other);
                 /*  ---  */
             }
             set
             {
                 int tUser = value, tGroup = value, tOther = value;
 
-                this._user = (byte)((tUser >> 6) & 0x7);
-                this._group = (byte)((tGroup >> 3) & 0x7);
-                this._other = (byte)(tOther & 0x7);
+                this._User = (byte)((tUser >> 6) & 0x7);
+                this._Group = (byte)((tGroup >> 3) & 0x7);
+                this._Other = (byte)(tOther & 0x7);
             }
         }
 
-        override
-        public string ToString()
+        /// <summary>
+        /// Returns a string representation of the permissions in rwx format.
+        /// </summary>
+        /// <returns>A string showing user, group, and other permissions separated by " | ".</returns>
+        public override string ToString()
         {
-            return calc_mode(_user) + " | " + calc_mode(_group) + " | " + calc_mode(_other);
+            return CalcMode(_User) + " | " + CalcMode(_Group) + " | " + CalcMode(_Other);
         }
 
-        private string calc_mode(byte modfg)
+        private string CalcMode(byte modfg)
         {
             switch (modfg)
             {

@@ -4,50 +4,73 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    /// <summary>
+    /// Represents arguments for NFS v2 file attribute operations.
+    /// </summary>
     public class FileArguments : XdrAble
     {
-        private NFSHandle _file;
-        private CreateAttributes _attributes;
+        private NFSHandle _File;
+        private CreateAttributes _Attributes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileArguments"/> class.
+        /// </summary>
         public FileArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public FileArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._file.xdrEncode(xdr);
-            this._attributes.xdrEncode(xdr);
+            this._File.XdrEncode(xdr);
+            this._Attributes.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._file = new NFSHandle();
-            this._file.Version = V2.RPC.NFSv2Protocol.NFS_VERSION;
-            this._file.xdrDecode(xdr);
-            this._attributes = new CreateAttributes(xdr);
+            this._File = new NFSHandle();
+            this._File.Version = V2.RPC.NFSv2Protocol.NFS_VERSION;
+            this._File.XdrDecode(xdr);
+            this._Attributes = new CreateAttributes(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the file handle.
+        /// </summary>
         public NFSHandle File
         {
             get
-            { return this._file; }
+            { return this._File; }
             set
-            { this._file = value; }
+            { this._File = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the file attributes.
+        /// </summary>
         public CreateAttributes Attributes
         {
             get
-            { return this._attributes; }
+            { return this._Attributes; }
             set
-            { this._attributes = value; }
+            { this._Attributes = value; }
         }
     }
 

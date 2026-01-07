@@ -3,55 +3,202 @@
  * jrpcgen is part of the "Remote Tea.Net" ONC/RPC package for C#
  * See http://remotetea.sourceforge.net for details
  */
-/**
- * A collection of constants used by the "NFSv3Protocol" ONC/RPC program.
- */
 
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    /// <summary>
+    /// A collection of constants used by the NFS v3 protocol.
+    /// </summary>
     public class NFSv3Protocol
     {
+        /// <summary>
+        /// The NFS program number.
+        /// </summary>
         public const int NFS_PROGRAM = 100003;
+
+        /// <summary>
+        /// The NFS version number for v3.
+        /// </summary>
         public const int NFS_V3 = 3;
 
+        /// <summary>
+        /// Access check flag: read permission.
+        /// </summary>
         public const int ACCESS3_READ = 0x0001;
+
+        /// <summary>
+        /// Access check flag: lookup permission (for directories).
+        /// </summary>
         public const int ACCESS3_LOOKUP = 0x0002;
+
+        /// <summary>
+        /// Access check flag: modify permission.
+        /// </summary>
         public const int ACCESS3_MODIFY = 0x0004;
+
+        /// <summary>
+        /// Access check flag: extend permission (append data).
+        /// </summary>
         public const int ACCESS3_EXTEND = 0x0008;
+
+        /// <summary>
+        /// Access check flag: delete permission.
+        /// </summary>
         public const int ACCESS3_DELETE = 0x0010;
+
+        /// <summary>
+        /// Access check flag: execute permission.
+        /// </summary>
         public const int ACCESS3_EXECUTE = 0x0020;
 
+        /// <summary>
+        /// Null procedure for testing server availability.
+        /// </summary>
         public const int NFSPROC3_NULL = 0;
+
+        /// <summary>
+        /// Get file attributes procedure.
+        /// </summary>
         public const int NFSPROC3_GETATTR = 1;
+
+        /// <summary>
+        /// Set file attributes procedure.
+        /// </summary>
         public const int NFSPROC3_SETATTR = 2;
+
+        /// <summary>
+        /// Look up file name procedure.
+        /// </summary>
         public const int NFSPROC3_LOOKUP = 3;
+
+        /// <summary>
+        /// Check access permission procedure.
+        /// </summary>
         public const int NFSPROC3_ACCESS = 4;
+
+        /// <summary>
+        /// Read from symbolic link procedure.
+        /// </summary>
         public const int NFSPROC3_READLINK = 5;
+
+        /// <summary>
+        /// Read from file procedure.
+        /// </summary>
         public const int NFSPROC3_READ = 6;
+
+        /// <summary>
+        /// Write to file procedure.
+        /// </summary>
         public const int NFSPROC3_WRITE = 7;
+
+        /// <summary>
+        /// Create file procedure.
+        /// </summary>
         public const int NFSPROC3_CREATE = 8;
+
+        /// <summary>
+        /// Create directory procedure.
+        /// </summary>
         public const int NFSPROC3_MKDIR = 9;
+
+        /// <summary>
+        /// Create symbolic link procedure.
+        /// </summary>
         public const int NFSPROC3_SYMLINK = 10;
+
+        /// <summary>
+        /// Create special device node procedure.
+        /// </summary>
         public const int NFSPROC3_MKNOD = 11;
+
+        /// <summary>
+        /// Remove file procedure.
+        /// </summary>
         public const int NFSPROC3_REMOVE = 12;
+
+        /// <summary>
+        /// Remove directory procedure.
+        /// </summary>
         public const int NFSPROC3_RMDIR = 13;
+
+        /// <summary>
+        /// Rename file procedure.
+        /// </summary>
         public const int NFSPROC3_RENAME = 14;
+
+        /// <summary>
+        /// Create hard link procedure.
+        /// </summary>
         public const int NFSPROC3_LINK = 15;
+
+        /// <summary>
+        /// Read from directory procedure.
+        /// </summary>
         public const int NFSPROC3_READDIR = 16;
+
+        /// <summary>
+        /// Extended read from directory procedure.
+        /// </summary>
         public const int NFSPROC3_READDIRPLUS = 17;
+
+        /// <summary>
+        /// Get file system statistics procedure.
+        /// </summary>
         public const int NFSPROC3_FSSTAT = 18;
+
+        /// <summary>
+        /// Get file system info procedure.
+        /// </summary>
         public const int NFSPROC3_FSINFO = 19;
+
+        /// <summary>
+        /// Get path configuration procedure.
+        /// </summary>
         public const int NFSPROC3_PATHCONF = 20;
+
+        /// <summary>
+        /// Commit cached data to stable storage procedure.
+        /// </summary>
         public const int NFSPROC3_COMMIT = 21;
 
+        /// <summary>
+        /// File system supports hard links.
+        /// </summary>
         public const int FSF3_LINK = 0x0001;
+
+        /// <summary>
+        /// File system supports symbolic links.
+        /// </summary>
         public const int FSF3_SYMLINK = 0x0002;
+
+        /// <summary>
+        /// File system is homogeneous (same pathconf values for all files).
+        /// </summary>
         public const int FSF3_HOMOGENEOUS = 0x0008;
+
+        /// <summary>
+        /// File system supports setting time attributes.
+        /// </summary>
         public const int FSF3_CANSETTIME = 0x0010;
 
+        /// <summary>
+        /// Size of a directory cookie verifier in bytes.
+        /// </summary>
         public const int NFS3_COOKIEVERFSIZE = 8;
+
+        /// <summary>
+        /// Size of a write verifier in bytes.
+        /// </summary>
         public const int NFS3_WRITEVERFSIZE = 8;
+
+        /// <summary>
+        /// Size of a create verifier in bytes.
+        /// </summary>
         public const int NFS3_CREATEVERFSIZE = 8;
+
+        /// <summary>
+        /// Maximum size of a file handle in bytes.
+        /// </summary>
         public const int NFS3_FHSIZE = 64;
     }
 

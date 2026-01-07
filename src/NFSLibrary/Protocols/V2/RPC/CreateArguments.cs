@@ -4,134 +4,71 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    /// <summary>
+    /// Represents arguments for NFS v2 create operations.
+    /// </summary>
     public class CreateArguments : XdrAble
     {
-        private ItemOperationArguments _where;
-        private CreateAttributes _attributes;
+        private ItemOperationArguments _Where;
+        private CreateAttributes _Attributes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateArguments"/> class.
+        /// </summary>
         public CreateArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public CreateArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._where.xdrEncode(xdr);
-            this._attributes.xdrEncode(xdr);
+            this._Where.XdrEncode(xdr);
+            this._Attributes.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._where = new ItemOperationArguments(xdr);
-            this._attributes = new CreateAttributes(xdr);
+            this._Where = new ItemOperationArguments(xdr);
+            this._Attributes = new CreateAttributes(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the location where the item should be created.
+        /// </summary>
         public ItemOperationArguments Where
         {
             get
-            { return this._where; }
+            { return this._Where; }
             set
-            { this._where = value; }
+            { this._Where = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the attributes for the item to be created.
+        /// </summary>
         public CreateAttributes Attributes
         {
             get
-            { return this._attributes; }
+            { return this._Attributes; }
             set
-            { this._attributes = value; }
+            { this._Attributes = value; }
         }
     }
-
-    public class CreateAttributes : XdrAble
-    {
-        private NFSPermission _mode;
-        private int _uid;
-        private int _gid;
-        private int _size;
-        private NFSTimeValue _atime;
-        private NFSTimeValue _mtime;
-
-        public CreateAttributes()
-        { }
-
-        public CreateAttributes(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
-
-        public void xdrEncode(XdrEncodingStream xdr)
-        {
-            xdr.xdrEncodeInt(this._mode.Mode);
-            xdr.xdrEncodeInt(this._uid);
-            xdr.xdrEncodeInt(this._gid);
-            xdr.xdrEncodeInt(this._size);
-            this._atime.xdrEncode(xdr);
-            this._mtime.xdrEncode(xdr);
-        }
-
-        public void xdrDecode(XdrDecodingStream xdr)
-        {
-            this._mode.Mode = xdr.xdrDecodeInt();
-            this._uid = xdr.xdrDecodeInt();
-            this._gid = xdr.xdrDecodeInt();
-            this._size = xdr.xdrDecodeInt();
-            this._atime = new NFSTimeValue(xdr);
-            this._mtime = new NFSTimeValue(xdr);
-        }
-
-        public NFSPermission Mode
-        {
-            get
-            { return this._mode; }
-            set
-            { this._mode = value; }
-        }
-
-        public int UserID
-        {
-            get
-            { return this._uid; }
-            set
-            { this._uid = value; }
-        }
-
-        public int GroupID
-        {
-            get
-            { return this._gid; }
-            set
-            { this._gid = value; }
-        }
-
-        public int Size
-        {
-            get
-            { return this._size; }
-            set
-            { this._size = value; }
-        }
-
-        public NFSTimeValue LastAccessedTime
-        {
-            get
-            { return this._atime; }
-            set
-            { this._atime = value; }
-        }
-
-        public NFSTimeValue ModifiedTime
-        {
-            get
-            { return this._mtime; }
-            set
-            { this._mtime = value; }
-        }
-    }
-
-    // End of createargs.cs
 }

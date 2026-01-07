@@ -1,87 +1,104 @@
-﻿using NFSLibrary.Protocols.Commons;
-using NFSLibrary.Protocols.Commons.Exceptions;
-using NFSLibrary.Protocols.Commons.Exceptions.Mount;
-using NFSLibrary.Protocols.V3.RPC;
-using NFSLibrary.Protocols.V3.RPC.Mount;
-using org.acplt.oncrpc;
-using System;
-using System.Collections.Generic;
-using System.Net;
-
 namespace NFSLibrary.Protocols.V3
 {
-    public class NFSv3 : INFS
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Protocols.Commons.Exceptions;
+    using NFSLibrary.Protocols.Commons.Exceptions.Mount;
+    using NFSLibrary.Protocols.V3.RPC;
+    using NFSLibrary.Protocols.V3.RPC.Mount;
+    using NFSLibrary.Rpc;
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    /// <summary>
+    /// NFS version 3 protocol implementation.
+    /// </summary>
+    public class NFSv3 : NFSProtocolBase
     {
         #region Fields
 
-        private NFSHandle _RootDirectoryHandleObject = null;
-        private NFSHandle _CurrentItemHandleObject = null;
-
-        private NFSv3ProtocolClient _ProtocolV3 = null;
-        private NFSv3MountProtocolClient _MountProtocolV3 = null;
-
-        private String _MountedDevice = String.Empty;
-        private String _CurrentItem = String.Empty;
-
-        private int _GroupID = -1;
-        private int _UserID = -1;
+        // Protocol-specific clients
+        private NFSv3ProtocolClient? _ProtocolV3 = null;
+        private NFSv3MountProtocolClient? _MountProtocolV3 = null;
 
         #endregion Fields
 
-        #region Constructur
+        #region Connection Methods
 
-        public void Connect(IPAddress Address, int UserID, int GroupID, int ClientTimeout, System.Text.Encoding characterEncoding, bool useSecurePort, bool useCache)
+        /// <inheritdoc/>
+        protected override bool IsProtocolClientConnected() => _ProtocolV3 != null;
+
+        /// <inheritdoc/>
+        protected override bool IsMountProtocolClientConnected() => _MountProtocolV3 != null;
+
+        /// <inheritdoc/>
+        protected override void DisposeProtocolClients()
         {
-            if (ClientTimeout == 0)
-            { ClientTimeout = 60000; }
+            Disconnect();
+        }
+
+        /// <inheritdoc/>
+        public override void Connect(IPAddress address, int userId, int groupId, int clientTimeout, System.Text.Encoding characterEncoding, bool useSecurePort, bool useFhCache, int nfsPort = 0, int mountPort = 0)
+        {
+            if (clientTimeout == 0)
+            { clientTimeout = 60000; }
 
             if (characterEncoding == null)
             { characterEncoding = System.Text.Encoding.ASCII; }
 
-            _RootDirectoryHandleObject = null;
-            _CurrentItemHandleObject = null;
+            ResetConnectionState();
 
-            _MountedDevice = String.Empty;
-            _CurrentItem = String.Empty;
+            _GroupID = groupId;
+            _UserID = userId;
 
-            _GroupID = GroupID;
-            _UserID = UserID;
+            OncRpcClientAuthUnix authUnix = new OncRpcClientAuthUnix(address.ToString(), userId, groupId);
 
-            OncRpcClientAuthUnix authUnix = new OncRpcClientAuthUnix(Address.ToString(), UserID, GroupID);
+            // Use specified mount port if provided, otherwise let portmapper discover it
+            if (mountPort > 0)
+            {
+                _MountProtocolV3 = new NFSv3MountProtocolClient(address, mountPort, OncRpcProtocols.ONCRPC_UDP);
+            }
+            else
+            {
+                _MountProtocolV3 = new NFSv3MountProtocolClient(address, OncRpcProtocols.ONCRPC_UDP, useSecurePort);
+            }
 
-            _MountProtocolV3 = new NFSv3MountProtocolClient(Address, OncRpcProtocols.ONCRPC_UDP, useSecurePort);
+            _MountProtocolV3.GetClient().SetAuth(authUnix);
+            _MountProtocolV3.GetClient().SetTimeout(clientTimeout);
+            _MountProtocolV3.GetClient().SetCharacterEncoding(characterEncoding.WebName);
 
-            _MountProtocolV3.GetClient().setAuth(authUnix);
-            _MountProtocolV3.GetClient().setTimeout(ClientTimeout);
-            _MountProtocolV3.GetClient().setCharacterEncoding(characterEncoding.WebName);
+            // Use specified NFS port if provided, otherwise let portmapper discover it
+            if (nfsPort > 0)
+            {
+                _ProtocolV3 = new NFSv3ProtocolClient(address, nfsPort, OncRpcProtocols.ONCRPC_TCP);
+            }
+            else
+            {
+                _ProtocolV3 = new NFSv3ProtocolClient(address, OncRpcProtocols.ONCRPC_TCP, useSecurePort);
+            }
 
-            _ProtocolV3 = new NFSv3ProtocolClient(Address, OncRpcProtocols.ONCRPC_TCP, useSecurePort);
-
-            _ProtocolV3.GetClient().setAuth(authUnix);
-            _ProtocolV3.GetClient().setTimeout(ClientTimeout);
-            _ProtocolV3.GetClient().setCharacterEncoding(characterEncoding.WebName);
+            _ProtocolV3.GetClient().SetAuth(authUnix);
+            _ProtocolV3.GetClient().SetTimeout(clientTimeout);
+            _ProtocolV3.GetClient().SetCharacterEncoding(characterEncoding.WebName);
         }
 
-        #endregion Constructur
+        #endregion Connection Methods
 
         #region Public Methods
 
-        public void Disconnect()
+        /// <inheritdoc/>
+        public override void Disconnect()
         {
-            _RootDirectoryHandleObject = null;
-            _CurrentItemHandleObject = null;
-
-            _MountedDevice = String.Empty;
-            _CurrentItem = String.Empty;
+            ResetConnectionState();
 
             if (_MountProtocolV3 != null)
-                _MountProtocolV3.close();
+                _MountProtocolV3.Close();
 
             if (_ProtocolV3 != null)
-                _ProtocolV3.close();
+                _ProtocolV3.Close();
         }
 
-        public int GetBlockSize()
+        /// <inheritdoc/>
+        public override int GetBlockSize()
         {
             //call fsinfo
             FSInfoArguments argsfs = new FSInfoArguments();
@@ -109,14 +126,14 @@ namespace NFSLibrary.Protocols.V3
             return 8000;
         }
 
-        public List<String> GetExportedDevices()
+        /// <inheritdoc/>
+        public override List<String> GetExportedDevices()
         {
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            ValidateMountConnection();
 
             List<string> nfsDevices = new List<string>();
 
-            Exports exp = _MountProtocolV3.MOUNTPROC3_EXPORT();
+            Exports exp = _MountProtocolV3!.MOUNTPROC3_EXPORT();
 
             for (; ; )
             {
@@ -129,20 +146,17 @@ namespace NFSLibrary.Protocols.V3
             return nfsDevices;
         }
 
-        public void MountDevice(String DeviceName)
+        /// <inheritdoc/>
+        public override void MountDevice(String deviceName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
-
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            ValidateConnection();
 
             MountStatus mnt =
-                _MountProtocolV3.MOUNTPROC3_MNT(new Name(DeviceName));
+                _MountProtocolV3.MOUNTPROC3_MNT(new Name(deviceName));
 
             if (mnt.Status == NFSMountStats.MNT_OK)
             {
-                _MountedDevice = DeviceName;
+                _MountedDevice = deviceName;
                 _RootDirectoryHandleObject = mnt.MountInfo.MountHandle;
             }
             else
@@ -157,32 +171,25 @@ namespace NFSLibrary.Protocols.V3
                 _ProtocolV3.NFSPROC3_FSSTAT(argsfs2);*/
         }
 
-        public void UnMountDevice()
+        /// <inheritdoc/>
+        public override void UnMountDevice()
         {
             if (_MountedDevice != null)
             {
-                _MountProtocolV3.MOUNTPROC3_UMNT(new Name(_MountedDevice));
-
-                _RootDirectoryHandleObject = null;
-                _CurrentItemHandleObject = null;
-
-                _MountedDevice = String.Empty;
-                _CurrentItem = String.Empty;
+                _MountProtocolV3?.MOUNTPROC3_UMNT(new Name(_MountedDevice));
+                ResetMountState();
             }
         }
 
-        public List<String> GetItemList(String DirectoryFullName)
+        /// <inheritdoc/>
+        public override List<String> GetItemList(String directoryFullName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
-
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            ValidateConnection();
 
             List<string> ItemsList = new List<string>();
 
             NFSAttributes itemAttributes =
-                GetItemAttributes(DirectoryFullName);
+                GetItemAttributes(directoryFullName);
 
             if (itemAttributes != null)
             {
@@ -229,21 +236,17 @@ namespace NFSLibrary.Protocols.V3
             return ItemsList;
         }
 
-        public NFSAttributes GetItemAttributes(string ItemFullName, bool ThrowExceptionIfNotFound = true)
+        /// <inheritdoc/>
+        public override NFSAttributes? GetItemAttributes(string itemFullName, bool throwExceptionIfNotFound = true)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            NFSAttributes? attributes = null;
 
-            NFSAttributes attributes = null;
-
-            if (String.IsNullOrEmpty(ItemFullName))
-                ItemFullName = ".";
+            itemFullName = NormalizePath(itemFullName);
 
             NFSHandle currentItem = _RootDirectoryHandleObject;
-            String[] PathTree = ItemFullName.Split(@"\".ToCharArray());
+            String[] PathTree = itemFullName.Split(@"\".ToCharArray());
 
             for (int pC = 0; pC < PathTree.Length; pC++)
             {
@@ -276,7 +279,7 @@ namespace NFSLibrary.Protocols.V3
                     if (pDirOpRes == null || pDirOpRes.Status == NFSStats.NFSERR_NOENT)
                     { attributes = null; break; }
 
-                    if (ThrowExceptionIfNotFound)
+                    if (throwExceptionIfNotFound)
                         ExceptionHelpers.ThrowException(pDirOpRes.Status);
                 }
             }
@@ -284,19 +287,16 @@ namespace NFSLibrary.Protocols.V3
             return attributes;
         }
 
-        public void CreateDirectory(string DirectoryFullName, NFSPermission Mode)
+        /// <inheritdoc/>
+        public override void CreateDirectory(string directoryFullName, NFSPermission mode)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            if (mode == null)
+            { mode = new NFSPermission(7, 7, 7); }
 
-            if (Mode == null)
-            { Mode = new NFSPermission(7, 7, 7); }
-
-            string ParentDirectory = System.IO.Path.GetDirectoryName(DirectoryFullName);
-            string DirectoryName = System.IO.Path.GetFileName(DirectoryFullName);
+            string ParentDirectory = System.IO.Path.GetDirectoryName(directoryFullName);
+            string DirectoryName = System.IO.Path.GetFileName(directoryFullName);
 
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
@@ -304,7 +304,7 @@ namespace NFSLibrary.Protocols.V3
             dpArgCreate.Attributes = new MakeAttributes();
             dpArgCreate.Attributes.LastAccessedTime = new NFSTimeValue();
             dpArgCreate.Attributes.ModifiedTime = new NFSTimeValue();
-            dpArgCreate.Attributes.Mode = Mode;
+            dpArgCreate.Attributes.Mode = mode;
             dpArgCreate.Attributes.SetMode = true;
             dpArgCreate.Attributes.UserID = this._UserID;
             dpArgCreate.Attributes.SetUserID = true;
@@ -327,16 +327,13 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public void DeleteDirectory(string DirectoryFullName)
+        /// <inheritdoc/>
+        public override void DeleteDirectory(string directoryFullName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
-
-            string ParentDirectory = System.IO.Path.GetDirectoryName(DirectoryFullName);
-            string DirectoryName = System.IO.Path.GetFileName(DirectoryFullName);
+            string ParentDirectory = GetParentDirectory(directoryFullName);
+            string DirectoryName = System.IO.Path.GetFileName(directoryFullName);
 
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
@@ -356,16 +353,13 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public void DeleteFile(string FileFullName)
+        /// <inheritdoc/>
+        public override void DeleteFile(string fileFullName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
-
-            string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
-            string FileName = System.IO.Path.GetFileName(FileFullName);
+            string ParentDirectory = GetParentDirectory(fileFullName);
+            string FileName = System.IO.Path.GetFileName(fileFullName);
 
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
@@ -385,29 +379,26 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public void CreateFile(string FileFullName, NFSPermission Mode)
+        /// <inheritdoc/>
+        public override void CreateFile(string fileFullName, NFSPermission mode)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            if (mode == null)
+            { mode = new NFSPermission(7, 7, 7); }
 
-            if (Mode == null)
-            { Mode = new NFSPermission(7, 7, 7); }
-
-            string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
-            string FileName = System.IO.Path.GetFileName(FileFullName);
+            string ParentDirectory = GetParentDirectory(fileFullName);
+            string FileName = System.IO.Path.GetFileName(fileFullName);
 
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
             MakeFileArguments dpArgCreate = new MakeFileArguments();
             dpArgCreate.How = new MakeFileHow();
-            dpArgCreate.How.Mode = MakeFileHow.MakeFileModes.UNCHECKED;
+            dpArgCreate.How.Mode = MakeFileModes.UNCHECKED;
             dpArgCreate.How.Attributes = new MakeAttributes();
             dpArgCreate.How.Attributes.LastAccessedTime = new NFSTimeValue();
             dpArgCreate.How.Attributes.ModifiedTime = new NFSTimeValue();
-            dpArgCreate.How.Attributes.Mode = Mode;
+            dpArgCreate.How.Attributes.Mode = mode;
             dpArgCreate.How.Attributes.SetMode = true;
             dpArgCreate.How.Attributes.UserID = this._UserID;
             dpArgCreate.How.Attributes.SetUserID = true;
@@ -433,30 +424,27 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public int Read(String FileFullName, long Offset, int Count, ref Byte[] Buffer)
+        /// <inheritdoc/>
+        public override int Read(String fileFullName, long offset, int count, ref Byte[] buffer)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
-
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            ValidateConnection();
 
             int rCount = 0;
 
-            if (Count == 0)
+            if (count == 0)
                 return 0;
 
-            if (_CurrentItem != FileFullName)
+            if (_CurrentItem != fileFullName)
             {
-                NFSAttributes Attributes = GetItemAttributes(FileFullName);
+                NFSAttributes Attributes = GetItemAttributes(fileFullName);
                 _CurrentItemHandleObject = new NFSHandle(Attributes.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-                _CurrentItem = FileFullName;
+                _CurrentItem = fileFullName;
             }
 
             ReadArguments dpArgRead = new ReadArguments();
             dpArgRead.File = _CurrentItemHandleObject;
-            dpArgRead.Offset = Offset;
-            dpArgRead.Count = Count;
+            dpArgRead.Offset = offset;
+            dpArgRead.Count = count;
 
             ResultObject<ReadAccessOK, ReadAccessFAIL> pReadRes =
                 _ProtocolV3.NFSPROC3_READ(dpArgRead);
@@ -468,7 +456,7 @@ namespace NFSLibrary.Protocols.V3
 
                 rCount = pReadRes.OK.Data.Length;
 
-                Array.Copy(pReadRes.OK.Data, Buffer, rCount);
+                Array.Copy(pReadRes.OK.Data, buffer, rCount);
             }
             else
             { throw new NFSGeneralException("NFSPROC3_READ: failure"); }
@@ -476,15 +464,14 @@ namespace NFSLibrary.Protocols.V3
             return rCount;
         }
 
-        public void SetFileSize(string FileFullName, long Size)
+        /// <inheritdoc/>
+        public override void SetFileSize(string fileFullName, long size)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
-
-            NFSAttributes Attributes = GetItemAttributes(FileFullName);
+            NFSAttributes? Attributes = GetItemAttributes(fileFullName);
+            if (Attributes == null)
+            { throw new NFSGeneralException("File not found: " + fileFullName); }
 
             SetAttributeArguments dpArgSAttr = new SetAttributeArguments();
 
@@ -495,7 +482,7 @@ namespace NFSLibrary.Protocols.V3
             dpArgSAttr.Attributes.Mode = Attributes.Mode;
             dpArgSAttr.Attributes.UserID = -1;
             dpArgSAttr.Attributes.GroupID = -1;
-            dpArgSAttr.Attributes.Size = Size;
+            dpArgSAttr.Attributes.Size = size;
             dpArgSAttr.GuardCreateTime = new NFSTimeValue();
             dpArgSAttr.GuardCheck = false;
 
@@ -511,31 +498,28 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public int Write(String FileFullName, long Offset, int Count, Byte[] Buffer)
+        /// <inheritdoc/>
+        public override int Write(String fileFullName, long offset, int count, Byte[] buffer)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
-
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            ValidateConnection();
 
             int rCount = 0;
 
-            if (_CurrentItem != FileFullName)
+            if (_CurrentItem != fileFullName)
             {
-                NFSAttributes Attributes = GetItemAttributes(FileFullName);
+                NFSAttributes Attributes = GetItemAttributes(fileFullName);
                 _CurrentItemHandleObject = new NFSHandle(Attributes.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-                _CurrentItem = FileFullName;
+                _CurrentItem = fileFullName;
             }
 
-            if (Count < Buffer.Length)
-            { Array.Resize<byte>(ref Buffer, Count); }
+            if (count < buffer.Length)
+            { Array.Resize<byte>(ref buffer, count); }
 
             WriteArguments dpArgWrite = new WriteArguments();
             dpArgWrite.File = _CurrentItemHandleObject;
-            dpArgWrite.Offset = Offset;
-            dpArgWrite.Count = Count;
-            dpArgWrite.Data = Buffer;
+            dpArgWrite.Offset = offset;
+            dpArgWrite.Count = count;
+            dpArgWrite.Data = buffer;
 
             ResultObject<WriteAccessOK, WriteAccessFAIL> pAttrStat =
                 _ProtocolV3.NFSPROC3_WRITE(dpArgWrite);
@@ -553,24 +537,24 @@ namespace NFSLibrary.Protocols.V3
             return rCount;
         }
 
-        public void Move(string OldDirectoryFullName, string OldFileName, string NewDirectoryFullName, string NewFileName)
+        /// <inheritdoc/>
+        public override void Move(string oldDirectoryFullName, string oldFileName, string newDirectoryFullName, string newFileName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
+            NFSAttributes? OldDirectory = GetItemAttributes(oldDirectoryFullName);
+            NFSAttributes? NewDirectory = GetItemAttributes(newDirectoryFullName);
 
-            NFSAttributes OldDirectory = GetItemAttributes(OldDirectoryFullName);
-            NFSAttributes NewDirectory = GetItemAttributes(NewDirectoryFullName);
+            if (OldDirectory == null || NewDirectory == null)
+            { throw new NFSGeneralException("Source or destination directory not found"); }
 
             RenameArguments dpArgRename = new RenameArguments();
             dpArgRename.From = new ItemOperationArguments();
             dpArgRename.From.Directory = new NFSHandle(OldDirectory.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-            dpArgRename.From.Name = new Name(OldFileName);
+            dpArgRename.From.Name = new Name(oldFileName);
             dpArgRename.To = new ItemOperationArguments();
             dpArgRename.To.Directory = new NFSHandle(NewDirectory.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-            dpArgRename.To.Name = new Name(NewFileName);
+            dpArgRename.To.Name = new Name(newFileName);
 
             ResultObject<RenameAccessOK, RenameAccessFAIL> pRenameRes =
                 _ProtocolV3.NFSPROC3_RENAME(dpArgRename);
@@ -584,23 +568,144 @@ namespace NFSLibrary.Protocols.V3
             }
         }
 
-        public bool IsDirectory(string DirectoryFullName)
+        /// <inheritdoc/>
+        public override bool IsDirectory(string directoryFullName)
         {
-            if (_ProtocolV3 == null)
-            { throw new NFSConnectionException("NFS Client not connected!"); }
+            ValidateConnection();
 
-            if (_MountProtocolV3 == null)
-            { throw new NFSMountConnectionException("NFS Device not connected!"); }
-
-            NFSAttributes Attributes = GetItemAttributes(DirectoryFullName);
+            NFSAttributes? Attributes = GetItemAttributes(directoryFullName);
 
             return (Attributes != null && Attributes.NFSType == NFSItemTypes.NFDIR);
         }
 
-        public void CompleteIO()
+        /// <inheritdoc/>
+        public override void CompleteIO()
         {
             _CurrentItemHandleObject = null;
             _CurrentItem = string.Empty;
+        }
+
+        /// <inheritdoc/>
+        public override void CreateSymbolicLink(string linkPath, string targetPath, NFSPermission mode)
+        {
+            ValidateConnection();
+
+            string linkDirectory = System.IO.Path.GetDirectoryName(linkPath) ?? ".";
+            string linkName = System.IO.Path.GetFileName(linkPath);
+
+            NFSAttributes? dirAttributes = GetItemAttributes(linkDirectory);
+            if (dirAttributes == null)
+            {
+                throw new NFSGeneralException($"Directory not found: {linkDirectory}");
+            }
+
+            SymlinkArguments symlinkArgs = new SymlinkArguments();
+
+            // Set up the location (where) for the symlink
+            ItemOperationArguments where = new ItemOperationArguments();
+            where.Directory = new NFSHandle(dirAttributes.Handle, NFSv3Protocol.NFS_V3);
+            where.Name = new Name(linkName);
+
+            // Set up the symlink data (target and attributes)
+            SymlinkData symlinkData = new SymlinkData();
+            MakeAttributes makeAttrs = new MakeAttributes();
+            makeAttrs.Mode = mode;
+            makeAttrs.SetMode = true;
+            makeAttrs.UserID = _UserID;
+            makeAttrs.SetUserID = true;
+            makeAttrs.GroupID = _GroupID;
+            makeAttrs.SetGroupID = true;
+
+            // Use reflection to set private fields since no setters
+            System.Reflection.FieldInfo? whereField = typeof(SymlinkArguments).GetField("_where", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            System.Reflection.FieldInfo? symlinkField = typeof(SymlinkArguments).GetField("_symlink", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            System.Reflection.FieldInfo? attrsField = typeof(SymlinkData).GetField("_symlink_attributes", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            System.Reflection.FieldInfo? dataField = typeof(SymlinkData).GetField("_symlink_data", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            attrsField?.SetValue(symlinkData, makeAttrs);
+            dataField?.SetValue(symlinkData, new Name(targetPath));
+            whereField?.SetValue(symlinkArgs, where);
+            symlinkField?.SetValue(symlinkArgs, symlinkData);
+
+            ResultObject<SymlinkAccessOK, SymlinkAccessFAIL> result =
+                _ProtocolV3.NFSPROC3_SYMLINK(symlinkArgs);
+
+            if (result == null || result.Status != NFSStats.NFS_OK)
+            {
+                if (result == null)
+                {
+                    throw new NFSGeneralException("NFSPROC3_SYMLINK: failure");
+                }
+                ExceptionHelpers.ThrowException(result.Status);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override void CreateHardLink(string linkPath, string targetPath)
+        {
+            ValidateConnection();
+
+            string linkDirectory = System.IO.Path.GetDirectoryName(linkPath) ?? ".";
+            string linkName = System.IO.Path.GetFileName(linkPath);
+
+            NFSAttributes? targetAttributes = GetItemAttributes(targetPath);
+            if (targetAttributes == null)
+            {
+                throw new NFSGeneralException($"Target file not found: {targetPath}");
+            }
+
+            NFSAttributes? dirAttributes = GetItemAttributes(linkDirectory);
+            if (dirAttributes == null)
+            {
+                throw new NFSGeneralException($"Directory not found: {linkDirectory}");
+            }
+
+            LinkArguments linkArgs = new LinkArguments();
+            linkArgs.Handle = new NFSHandle(targetAttributes.Handle, NFSv3Protocol.NFS_V3);
+            linkArgs.Link = new ItemOperationArguments();
+            linkArgs.Link.Directory = new NFSHandle(dirAttributes.Handle, NFSv3Protocol.NFS_V3);
+            linkArgs.Link.Name = new Name(linkName);
+
+            ResultObject<LinkAccessOK, LinkAccessFAIL> result =
+                _ProtocolV3.NFSPROC3_LINK(linkArgs);
+
+            if (result == null || result.Status != NFSStats.NFS_OK)
+            {
+                if (result == null)
+                {
+                    throw new NFSGeneralException("NFSPROC3_LINK: failure");
+                }
+                ExceptionHelpers.ThrowException(result.Status);
+            }
+        }
+
+        /// <inheritdoc/>
+        public override string ReadSymbolicLink(string linkPath)
+        {
+            ValidateConnection();
+
+            NFSAttributes? linkAttributes = GetItemAttributes(linkPath);
+            if (linkAttributes == null)
+            {
+                throw new NFSGeneralException($"Symbolic link not found: {linkPath}");
+            }
+
+            ReadLinkArguments readLinkArgs = new ReadLinkArguments();
+            readLinkArgs.Handle = new NFSHandle(linkAttributes.Handle, NFSv3Protocol.NFS_V3);
+
+            ResultObject<ReadLinkAccessOK, ReadLinkAccessFAIL> result =
+                _ProtocolV3.NFSPROC3_READLINK(readLinkArgs);
+
+            if (result == null || result.Status != NFSStats.NFS_OK)
+            {
+                if (result == null)
+                {
+                    throw new NFSGeneralException("NFSPROC3_READLINK: failure");
+                }
+                ExceptionHelpers.ThrowException(result.Status);
+            }
+
+            return result.OK.Name.Value;
         }
 
         #endregion Public Methods

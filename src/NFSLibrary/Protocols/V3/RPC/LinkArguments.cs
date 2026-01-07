@@ -4,50 +4,74 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for hard link creation operations for NFS v3 protocol operations.
+    /// </summary>
     public class LinkArguments : XdrAble
     {
-        private NFSHandle _file;
-        private ItemOperationArguments _link;
+        private NFSHandle _File;
+        private ItemOperationArguments _Link;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LinkArguments"/> class.
+        /// </summary>
         public LinkArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LinkArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public LinkArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._file.xdrEncode(xdr);
-            this._link.xdrEncode(xdr);
+            this._File.XdrEncode(xdr);
+            this._Link.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._file = new NFSHandle();
-            this._file.Version = V3.RPC.NFSv3Protocol.NFS_V3;
-            this._file.xdrDecode(xdr);
-            this._link = new ItemOperationArguments(xdr);
+            this._File = new NFSHandle();
+            this._File.Version = V3.RPC.NFSv3Protocol.NFS_V3;
+            this._File.XdrDecode(xdr);
+            this._Link = new ItemOperationArguments(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the file handle to link to.
+        /// </summary>
         public NFSHandle Handle
         {
             get
-            { return this._file; }
+            { return this._File; }
             set
-            { this._file = value; }
+            { this._File = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the link target location (directory and name).
+        /// </summary>
         public ItemOperationArguments Link
         {
             get
-            { return this._link; }
+            { return this._Link; }
             set
-            { this._link = value; }
+            { this._Link = value; }
         }
     }
 

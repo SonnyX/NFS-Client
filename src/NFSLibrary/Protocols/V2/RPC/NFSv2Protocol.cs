@@ -3,40 +3,136 @@
  * jrpcgen is part of the "Remote Tea.Net" ONC/RPC package for C#
  * See http://remotetea.sourceforge.net for details
  */
-/**
- * A collection of constants used by the "NFSv2Protocol" ONC/RPC program.
- */
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    /// <summary>
+    /// Represents constants and procedure identifiers for the NFS v2 protocol.
+    /// </summary>
     public class NFSv2Protocol
     {
+        /// <summary>
+        /// The NFS program number.
+        /// </summary>
         public const int NFS_PROGRAM = 100003;
+
+        /// <summary>
+        /// The NFS version number for v2.
+        /// </summary>
         public const int NFS_VERSION = 2;
 
+        /// <summary>
+        /// Null procedure for testing server availability.
+        /// </summary>
         public const int NFSPROC_NULL = 0;
+
+        /// <summary>
+        /// Get file attributes procedure.
+        /// </summary>
         public const int NFSPROC_GETATTR = 1;
+
+        /// <summary>
+        /// Set file attributes procedure.
+        /// </summary>
         public const int NFSPROC_SETATTR = 2;
+
+        /// <summary>
+        /// Get file system root (obsolete) procedure.
+        /// </summary>
         public const int NFSPROC_ROOT = 3;
+
+        /// <summary>
+        /// Look up file name procedure.
+        /// </summary>
         public const int NFSPROC_LOOKUP = 4;
+
+        /// <summary>
+        /// Read from symbolic link procedure.
+        /// </summary>
         public const int NFSPROC_READLINK = 5;
+
+        /// <summary>
+        /// Read from file procedure.
+        /// </summary>
         public const int NFSPROC_READ = 6;
+
+        /// <summary>
+        /// Write to cache (obsolete) procedure.
+        /// </summary>
         public const int NFSPROC_WRITECACHE = 7;
+
+        /// <summary>
+        /// Write to file procedure.
+        /// </summary>
         public const int NFSPROC_WRITE = 8;
+
+        /// <summary>
+        /// Create file procedure.
+        /// </summary>
         public const int NFSPROC_CREATE = 9;
+
+        /// <summary>
+        /// Remove file procedure.
+        /// </summary>
         public const int NFSPROC_REMOVE = 10;
+
+        /// <summary>
+        /// Rename file procedure.
+        /// </summary>
         public const int NFSPROC_RENAME = 11;
+
+        /// <summary>
+        /// Create hard link procedure.
+        /// </summary>
         public const int NFSPROC_LINK = 12;
+
+        /// <summary>
+        /// Create symbolic link procedure.
+        /// </summary>
         public const int NFSPROC_SYMLINK = 13;
+
+        /// <summary>
+        /// Create directory procedure.
+        /// </summary>
         public const int NFSPROC_MKDIR = 14;
+
+        /// <summary>
+        /// Remove directory procedure.
+        /// </summary>
         public const int NFSPROC_RMDIR = 15;
+
+        /// <summary>
+        /// Read from directory procedure.
+        /// </summary>
         public const int NFSPROC_READDIR = 16;
+
+        /// <summary>
+        /// Get file system statistics procedure.
+        /// </summary>
         public const int NFSPROC_STATFS = 17;
 
+        /// <summary>
+        /// Size of a directory cookie in bytes.
+        /// </summary>
         public const int COOKIESIZE = 4;
+
+        /// <summary>
+        /// Maximum length of a path in bytes.
+        /// </summary>
         public const int MAXPATHLEN = 1024;
+
+        /// <summary>
+        /// Maximum length of a file name in bytes.
+        /// </summary>
         public const int MAXNAMLEN = 255;
+
+        /// <summary>
+        /// Maximum data transfer size in bytes.
+        /// </summary>
         public const int MAXDATA = 8192;
+
+        /// <summary>
+        /// Size of a file handle in bytes.
+        /// </summary>
         public const int FHSIZE = 32;
     }
 

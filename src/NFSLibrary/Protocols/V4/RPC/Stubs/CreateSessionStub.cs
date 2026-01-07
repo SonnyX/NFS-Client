@@ -1,63 +1,78 @@
-﻿using System;
-
 namespace NFSLibrary.Protocols.V4.RPC.Stubs
 {
+    using System;
+
+    /// <summary>
+    /// Provides stub methods for creating NFSv4.1 CREATE_SESSION operation requests.
+    /// The CREATE_SESSION operation establishes a session between the client and server,
+    /// which is required for NFSv4.1 operations. Sessions provide connection association,
+    /// exactly-once semantics, and support for callbacks. This must be called after EXCHANGE_ID
+    /// and before performing file operations in NFSv4.1.
+    /// </summary>
     internal class CreateSessionStub
     {
-        public static nfs_argop4 standard(clientid4 eir_clientid,
-                sequenceid4 eir_sequenceid)
+        /// <summary>
+        /// Generates a standard CREATE_SESSION operation request for establishing a session.
+        /// Configures both fore channel (client-to-server) and back channel (server-to-client)
+        /// attributes with reasonable defaults for typical NFS operations.
+        /// </summary>
+        /// <param name="eir_clientid">The client ID obtained from EXCHANGE_ID response.</param>
+        /// <param name="eir_sequenceid">The sequence ID obtained from EXCHANGE_ID response.</param>
+        /// <returns>An NfsArgop4 structure containing the CREATE_SESSION operation request.</returns>
+        public static NfsArgop4 Standard(Clientid4 eir_clientid,
+                Sequenceid4 eir_sequenceid)
         {
-            nfs_argop4 op = new nfs_argop4();
-            op.argop = nfs_opnum4.OP_CREATE_SESSION;
-            op.opcreate_session = new CREATE_SESSION4args();
-            channel_attrs4 chan_attrs = new channel_attrs4();
+            NfsArgop4 op = new NfsArgop4();
+            op.Argop = NfsOpnum4.OP_CREATE_SESSION;
+            op.Opcreate_session = new CreateSession4Args();
+            ChannelAttrs4 chan_attrs = new ChannelAttrs4();
 
-            chan_attrs.ca_headerpadsize = new count4(new uint32_t(0));
-            chan_attrs.ca_maxoperations = new count4(new uint32_t(8));
-            chan_attrs.ca_maxrequests = new count4(new uint32_t(128));
-            chan_attrs.ca_maxrequestsize = new count4(new uint32_t(1049620));
-            chan_attrs.ca_maxresponsesize = new count4(new uint32_t(1049480));
-            chan_attrs.ca_maxresponsesize_cached = new count4(new uint32_t(2868));
-            chan_attrs.ca_rdma_ird = new uint32_t[0];
+            chan_attrs.Ca_headerpadsize = new Count4(new Uint32T(0));
+            chan_attrs.Ca_maxoperations = new Count4(new Uint32T(8));
+            chan_attrs.Ca_maxrequests = new Count4(new Uint32T(128));
+            chan_attrs.Ca_maxrequestsize = new Count4(new Uint32T(1049620));
+            chan_attrs.Ca_maxresponsesize = new Count4(new Uint32T(1049480));
+            chan_attrs.Ca_maxresponsesize_cached = new Count4(new Uint32T(2868));
+            chan_attrs.Ca_rdma_ird = new Uint32T[0];
 
-            op.opcreate_session.csa_clientid = eir_clientid;
-            op.opcreate_session.csa_sequence = eir_sequenceid;
+            op.Opcreate_session.Csa_clientid = eir_clientid;
+            op.Opcreate_session.Csa_sequence = eir_sequenceid;
             //connection back channel
-            op.opcreate_session.csa_flags = new uint32_t(0);  //3 if u want to use the back channel
-            op.opcreate_session.csa_fore_chan_attrs = chan_attrs;
+            op.Opcreate_session.Csa_flags = new Uint32T(0);  //3 if u want to use the back channel
+            op.Opcreate_session.Csa_fore_chan_attrs = chan_attrs;
 
             //diferent chan attrs for fore channel
-            channel_attrs4 back_chan_attrs = new channel_attrs4();
-            back_chan_attrs.ca_headerpadsize = new count4(new uint32_t(0));
-            back_chan_attrs.ca_maxoperations = new count4(new uint32_t(2));
-            back_chan_attrs.ca_maxrequests = new count4(new uint32_t(1));
-            back_chan_attrs.ca_maxrequestsize = new count4(new uint32_t(4096));
-            back_chan_attrs.ca_maxresponsesize = new count4(new uint32_t(4096));
-            back_chan_attrs.ca_maxresponsesize_cached = new count4(new uint32_t(0));
-            back_chan_attrs.ca_rdma_ird = new uint32_t[0];
+            ChannelAttrs4 back_chan_attrs = new ChannelAttrs4();
+            back_chan_attrs.Ca_headerpadsize = new Count4(new Uint32T(0));
+            back_chan_attrs.Ca_maxoperations = new Count4(new Uint32T(2));
+            back_chan_attrs.Ca_maxrequests = new Count4(new Uint32T(1));
+            back_chan_attrs.Ca_maxrequestsize = new Count4(new Uint32T(4096));
+            back_chan_attrs.Ca_maxresponsesize = new Count4(new Uint32T(4096));
+            back_chan_attrs.Ca_maxresponsesize_cached = new Count4(new Uint32T(0));
+            back_chan_attrs.Ca_rdma_ird = new Uint32T[0];
 
-            op.opcreate_session.csa_back_chan_attrs = back_chan_attrs;
-            op.opcreate_session.csa_cb_program = new uint32_t(0x40000000);
+            op.Opcreate_session.Csa_back_chan_attrs = back_chan_attrs;
+            op.Opcreate_session.Csa_cb_program = new Uint32T(0x40000000);
 
-            callback_sec_parms4[] cb = new callback_sec_parms4[1];
-            callback_sec_parms4 callb = new callback_sec_parms4();
+            CallbackSecParms4[] cb = new CallbackSecParms4[1];
+            CallbackSecParms4 callb = new CallbackSecParms4();
 
             //new auth_sys params
-            callb.cb_secflavor = auth_flavor.AUTH_SYS;
-            callb.cbsp_sys_cred = new authsys_parms();
+            callb.Cb_secflavor = AuthFlavor.AUTH_SYS;
+            callb.Cbsp_sys_cred = new AuthsysParms();
             Random r = new Random();
-            callb.cbsp_sys_cred.stamp = r.Next(); //just random number
-            callb.cbsp_sys_cred.gid = 0; //maybe root ?
-            callb.cbsp_sys_cred.uid = 0; //maybe root ?
+            callb.Cbsp_sys_cred.Stamp = r.Next(); //just random number
+            callb.Cbsp_sys_cred.Gid = 0; //maybe root ?
+            callb.Cbsp_sys_cred.Uid = 0; //maybe root ?
 
-            callb.cbsp_sys_cred.machinename = System.Environment.MachineName;
-            callb.cbsp_sys_cred.gids = new int[0];
+            callb.Cbsp_sys_cred.Machinename = System.Environment.MachineName;
+            callb.Cbsp_sys_cred.Gids = new int[0];
 
-            //callb.cb_secflavor = auth_flavor.AUTH_NONE;
+            //callb.Cb_secflavor = AuthFlavor.AUTH_NONE;
 
             cb[0] = callb;
-            // op.opcreate_session.csa_sec_parms = new callback_sec_parms4[1];
-            op.opcreate_session.csa_sec_parms = cb;
+            // op.Opcreate_session.csa_sec_parms = new CallbackSecParms4[1];
+            op.Opcreate_session.csa_sec_parms = cb;
             return op;
         }
     }

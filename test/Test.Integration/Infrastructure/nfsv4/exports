@@ -1,0 +1,19 @@
+# NFS Exports for NFSv4 Integration Testing
+#
+# NFSv4 uses a pseudo-filesystem with fsid=0 as the root
+#
+# /export    - Pseudo-filesystem root (fsid=0)
+# /export/rw - Read-write export for write tests (empty)
+# /export/ro - Read-only export with pre-seeded test data
+#
+# Options:
+#   rw/ro       - Read-write or read-only access
+#   sync        - Synchronous writes (safer for testing)
+#   fsid=0      - NFSv4 pseudo-filesystem root
+#   no_subtree_check - Disable subtree checking (better performance)
+#   no_root_squash   - Allow root access (needed for tests)
+#   insecure    - Allow connections from ports > 1024
+
+/export     *(rw,sync,fsid=0,no_subtree_check,no_root_squash,insecure)
+/export/rw  *(rw,sync,no_subtree_check,no_root_squash,insecure)
+/export/ro  *(ro,sync,no_subtree_check,no_root_squash,insecure)

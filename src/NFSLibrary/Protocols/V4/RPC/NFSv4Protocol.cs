@@ -6,247 +6,946 @@
 
 namespace NFSLibrary.Protocols.V4.RPC
 {
-    /**
-     * A collection of constants used by the "NFSv4Protocol" ONC/RPC program.
-     */
-
+    /// <summary>
+    /// Defines constants used by the NFSv4 protocol, including operation codes, attribute flags, access modes, and other protocol-specific values.
+    /// </summary>
     public class NFSv4Protocol
     {
+        /// <summary>
+        /// File system location client file identifier index
+        /// </summary>
         public const int FSLI4BX_CLFILEID = 4;
+        /// <summary>
+        /// File system character set capability allows only UTF-8
+        /// </summary>
         public const int FSCHARSET_CAP4_ALLOWS_ONLY_UTF8 = 0x2;
+        /// <summary>
+        /// Group read permission bit
+        /// </summary>
         public const int MODE4_RGRP = 0x020;
+        /// <summary>
+        /// Layout types attribute identifier
+        /// </summary>
         public const int FATTR4_LAYOUT_TYPES = 64;
+        /// <summary>
+        /// Layout alignment attribute identifier
+        /// </summary>
         public const int FATTR4_LAYOUT_ALIGNMENT = 66;
+        /// <summary>
+        /// Sequence status flag indicating callback GSS contexts expired
+        /// </summary>
         public const int SEQ4_STATUS_CB_GSS_CONTEXTS_EXPIRED = 0x00000004;
+        /// <summary>
+        /// Other write permission bit
+        /// </summary>
         public const int MODE4_WOTH = 0x002;
+        /// <summary>
+        /// Set user ID on execution bit
+        /// </summary>
         public const int MODE4_SUID = 0x800;
+        /// <summary>
+        /// Layout return record file type
+        /// </summary>
         public const int LAYOUT4_RET_REC_FILE = 1;
+        /// <summary>
+        /// Free files available attribute identifier
+        /// </summary>
         public const int FATTR4_FILES_FREE = 22;
+        /// <summary>
+        /// Maximum file offset value
+        /// </summary>
         public const ulong NFS4_MAXFILEOFF = 0xfffffffffffffffe;
+        /// <summary>
+        /// NFSv4 layout utility flags mask
+        /// </summary>
         public const int NFL4_UFLG_MASK = 0x0000003F;
+        /// <summary>
+        /// Supported attributes attribute identifier
+        /// </summary>
         public const int FATTR4_SUPPORTED_ATTRS = 0;
+        /// <summary>
+        /// File handle volatile on rename flag
+        /// </summary>
         public const int FH4_VOL_RENAME = 0x00000008;
+        /// <summary>
+        /// System ACL attribute identifier
+        /// </summary>
         public const int FATTR4_SACL = 59;
+        /// <summary>
+        /// Access control list attribute identifier
+        /// </summary>
         public const int FATTR4_ACL = 12;
+        /// <summary>
+        /// Unique file handles attribute identifier
+        /// </summary>
         public const int FATTR4_UNIQUE_HANDLES = 9;
+        /// <summary>
+        /// Open share access delegation want mask
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_DELEG_MASK = 0xFF00;
+        /// <summary>
+        /// System audit ACE type
+        /// </summary>
         public const int ACE4_SYSTEM_AUDIT_ACE_TYPE = 0x00000002;
+        /// <summary>
+        /// Other execute permission bit
+        /// </summary>
         public const int MODE4_XOTH = 0x001;
+        /// <summary>
+        /// Space used attribute identifier
+        /// </summary>
         public const int FATTR4_SPACE_USED = 45;
+        /// <summary>
+        /// File system location general flag split
+        /// </summary>
         public const int FSLI4GF_SPLIT = 0x10;
+        /// <summary>
+        /// ACE inherited flag
+        /// </summary>
         public const int ACE4_INHERITED_ACE = 0x00000080;
+        /// <summary>
+        /// Threshold write size type
+        /// </summary>
         public const int TH4_WRITE_SIZE = 1;
+        /// <summary>
+        /// Infinite retention duration value
+        /// </summary>
         public const ulong RET4_DURATION_INFINITE = 0xffffffffffffffff;
+        /// <summary>
+        /// File system location general flag current request
+        /// </summary>
         public const int FSLI4GF_CUR_REQ = 0x02;
+        /// <summary>
+        /// File system character set capability attribute identifier
+        /// </summary>
         public const int FATTR4_FS_CHARSET_CAP = 76;
+        /// <summary>
+        /// Exchange ID flag supports moved migration
+        /// </summary>
         public const int EXCHGID4_FLAG_SUPP_MOVED_MIGR = 0x00000002;
+        /// <summary>
+        /// Sequence status flag indicating some expired state was revoked
+        /// </summary>
         public const int SEQ4_STATUS_EXPIRED_SOME_STATE_REVOKED = 0x00000010;
+        /// <summary>
+        /// Layout block size attribute identifier
+        /// </summary>
         public const int FATTR4_LAYOUT_BLKSIZE = 65;
+        /// <summary>
+        /// Permission to read file data
+        /// </summary>
         public const int ACE4_READ_DATA = 0x00000001;
+        /// <summary>
+        /// ACE identifier is a group flag
+        /// </summary>
         public const int ACE4_IDENTIFIER_GROUP = 0x00000040;
+        /// <summary>
+        /// File system location transport flags index
+        /// </summary>
         public const int FSLI4BX_TFLAGS = 1;
+        /// <summary>
+        /// ACE file inherit flag
+        /// </summary>
         public const int ACE4_FILE_INHERIT_ACE = 0x00000001;
+        /// <summary>
+        /// File handle persistent type
+        /// </summary>
         public const int FH4_PERSISTENT = 0x00000000;
+        /// <summary>
+        /// ACL supports alarm ACL flag
+        /// </summary>
         public const int ACL4_SUPPORT_ALARM_ACL = 0x00000008;
+        /// <summary>
+        /// Files available attribute identifier
+        /// </summary>
         public const int FATTR4_FILES_AVAIL = 21;
+        /// <summary>
+        /// Lookup access permission
+        /// </summary>
         public const int ACCESS4_LOOKUP = 0x00000002;
+        /// <summary>
+        /// Group execute permission bit
+        /// </summary>
         public const int MODE4_XGRP = 0x008;
+        /// <summary>
+        /// Total space attribute identifier
+        /// </summary>
         public const int FATTR4_SPACE_TOTAL = 44;
+        /// <summary>
+        /// Open share access wants any delegation
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_ANY_DELEG = 0x0300;
+        /// <summary>
+        /// Permission to read ACL
+        /// </summary>
         public const int ACE4_READ_ACL = 0x00020000;
+        /// <summary>
+        /// ACL auto-inherit flag
+        /// </summary>
         public const int ACL4_AUTO_INHERIT = 0x00000001;
+        /// <summary>
+        /// Lease time attribute identifier
+        /// </summary>
         public const int FATTR4_LEASE_TIME = 10;
+        /// <summary>
+        /// Soft quota available attribute identifier
+        /// </summary>
         public const int FATTR4_QUOTA_AVAIL_SOFT = 39;
+        /// <summary>
+        /// Access denied ACE type
+        /// </summary>
         public const int ACE4_ACCESS_DENIED_ACE_TYPE = 0x00000001;
+        /// <summary>
+        /// Permission to add file to directory
+        /// </summary>
         public const int ACE4_ADD_FILE = 0x00000002;
+        /// <summary>
+        /// Permission to write ACL
+        /// </summary>
         public const int ACE4_WRITE_ACL = 0x00040000;
+        /// <summary>
+        /// Maximum file length value
+        /// </summary>
         public const ulong NFS4_MAXFILELEN = 0xffffffffffffffff;
+        /// <summary>
+        /// File system location general flag writable
+        /// </summary>
         public const int FSLI4GF_WRITABLE = 0x01;
+        /// <summary>
+        /// Maximum write size attribute identifier
+        /// </summary>
         public const int FATTR4_MAXWRITE = 31;
+        /// <summary>
+        /// ACL defaulted flag
+        /// </summary>
         public const int ACL4_DEFAULTED = 0x00000004;
+        /// <summary>
+        /// Owner write permission bit
+        /// </summary>
         public const int MODE4_WUSR = 0x080;
+        /// <summary>
+        /// Generic read permission combination
+        /// </summary>
         public const int ACE4_GENERIC_READ = 0x00120081;
+        /// <summary>
+        /// Device ID size in bytes
+        /// </summary>
         public const int NFS4_DEVICEID4_SIZE = 16;
+        /// <summary>
+        /// Sequence status flag indicating admin state revoked
+        /// </summary>
         public const int SEQ4_STATUS_ADMIN_STATE_REVOKED = 0x00000020;
+        /// <summary>
+        /// File handle volatile on any operation flag
+        /// </summary>
         public const int FH4_VOLATILE_ANY = 0x00000002;
+        /// <summary>
+        /// ACE inherit only flag
+        /// </summary>
         public const int ACE4_INHERIT_ONLY_ACE = 0x00000008;
+        /// <summary>
+        /// Maximum link count attribute identifier
+        /// </summary>
         public const int FATTR4_MAXLINK = 28;
+        /// <summary>
+        /// Open share access wants no delegation
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_NO_DELEG = 0x0400;
+        /// <summary>
+        /// File size attribute identifier
+        /// </summary>
         public const int FATTR4_SIZE = 4;
+        /// <summary>
+        /// Time modify set attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_MODIFY_SET = 54;
+        /// <summary>
+        /// Homogeneous file system attribute identifier
+        /// </summary>
         public const int FATTR4_HOMOGENEOUS = 26;
+        /// <summary>
+        /// Open share access wants push delegation when uncontended
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED = 0x20000;
+        /// <summary>
+        /// Layout return record all type
+        /// </summary>
         public const int LAYOUT4_RET_REC_ALL = 3;
+        /// <summary>
+        /// Permission to list directory contents
+        /// </summary>
         public const int ACE4_LIST_DIRECTORY = 0x00000001;
+        /// <summary>
+        /// Total files attribute identifier
+        /// </summary>
         public const int FATTR4_FILES_TOTAL = 23;
+        /// <summary>
+        /// Owner execute permission bit
+        /// </summary>
         public const int MODE4_XUSR = 0x040;
+        /// <summary>
+        /// Open share access write mode
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WRITE = 0x00000002;
+        /// <summary>
+        /// Hidden file attribute identifier
+        /// </summary>
         public const int FATTR4_HIDDEN = 25;
+        /// <summary>
+        /// File handle maximum size in bytes
+        /// </summary>
         public const int NFS4_FHSIZE = 128;
+        /// <summary>
+        /// Permission to read file attributes
+        /// </summary>
         public const int ACE4_READ_ATTRIBUTES = 0x00000080;
+        /// <summary>
+        /// Permission to write retention hold
+        /// </summary>
         public const int ACE4_WRITE_RETENTION_HOLD = 0x00000400;
+        /// <summary>
+        /// Permission to write file attributes
+        /// </summary>
         public const int ACE4_WRITE_ATTRIBUTES = 0x00000100;
+        /// <summary>
+        /// Opaque data limit in bytes
+        /// </summary>
         public const int NFS4_OPAQUE_LIMIT = 1024;
+        /// <summary>
+        /// File system location client change index
+        /// </summary>
         public const int FSLI4BX_CLCHANGE = 6;
+        /// <summary>
+        /// File system location client read rank index
+        /// </summary>
         public const int FSLI4BX_READRANK = 8;
+        /// <summary>
+        /// NFS protocol version 4
+        /// </summary>
         public const int NFS_V4 = 4;
+        /// <summary>
+        /// File system location info flag variable substitution
+        /// </summary>
         public const int FSLI4IF_VAR_SUB = 0x00000001;
+        /// <summary>
+        /// Permission to synchronize access
+        /// </summary>
         public const int ACE4_SYNCHRONIZE = 0x00100000;
+        /// <summary>
+        /// Successful access ACE flag
+        /// </summary>
         public const int ACE4_SUCCESSFUL_ACCESS_ACE_FLAG = 0x00000010;
+        /// <summary>
+        /// Retention hold attribute identifier
+        /// </summary>
         public const int FATTR4_RETENTION_HOLD = 73;
+        /// <summary>
+        /// Permission to add subdirectory to directory
+        /// </summary>
         public const int ACE4_ADD_SUBDIRECTORY = 0x00000004;
+        /// <summary>
+        /// Open result POSIX lock type flag
+        /// </summary>
         public const int OPEN4_RESULT_LOCKTYPE_POSIX = 0x00000004;
+        /// <summary>
+        /// Time access set attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_ACCESS_SET = 48;
+        /// <summary>
+        /// Extend file access permission
+        /// </summary>
         public const int ACCESS4_EXTEND = 0x00000008;
+        /// <summary>
+        /// Session ID size in bytes
+        /// </summary>
         public const int NFS4_SESSIONID_SIZE = 16;
+        /// <summary>
+        /// NFSv4 layout utility flag dense
+        /// </summary>
         public const int NFL4_UFLG_DENSE = 0x00000001;
+        /// <summary>
+        /// Owner read permission bit
+        /// </summary>
         public const int MODE4_RUSR = 0x100;
+        /// <summary>
+        /// Quota used attribute identifier
+        /// </summary>
         public const int FATTR4_QUOTA_USED = 40;
+        /// <summary>
+        /// Retention get attribute identifier
+        /// </summary>
         public const int FATTR4_RETENTION_GET = 69;
+        /// <summary>
+        /// Permission to write named attributes
+        /// </summary>
         public const int ACE4_WRITE_NAMED_ATTRS = 0x00000010;
+        /// <summary>
+        /// Sequence status flag indicating callback path down
+        /// </summary>
         public const int SEQ4_STATUS_CB_PATH_DOWN = 0x00000001;
+        /// <summary>
+        /// Exchange ID flag use as pNFS data server
+        /// </summary>
         public const int EXCHGID4_FLAG_USE_PNFS_DS = 0x00040000;
+        /// <summary>
+        /// Exchange ID flag use non-pNFS mode
+        /// </summary>
         public const int EXCHGID4_FLAG_USE_NON_PNFS = 0x00010000;
+        /// <summary>
+        /// Sequence status flag indicating callback GSS contexts expiring
+        /// </summary>
         public const int SEQ4_STATUS_CB_GSS_CONTEXTS_EXPIRING = 0x00000002;
+        /// <summary>
+        /// Maximum filename length attribute identifier
+        /// </summary>
         public const int FATTR4_MAXNAME = 29;
+        /// <summary>
+        /// File system location client handle index
+        /// </summary>
         public const int FSLI4BX_CLHANDLE = 3;
+        /// <summary>
+        /// Named attributes attribute identifier
+        /// </summary>
         public const int FATTR4_NAMED_ATTR = 7;
+        /// <summary>
+        /// Free space attribute identifier
+        /// </summary>
         public const int FATTR4_SPACE_FREE = 43;
+        /// <summary>
+        /// Change policy attribute identifier
+        /// </summary>
         public const int FATTR4_CHANGE_POLICY = 60;
+        /// <summary>
+        /// File mode attribute identifier
+        /// </summary>
         public const int FATTR4_MODE = 33;
+        /// <summary>
+        /// Time delta attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_DELTA = 51;
+        /// <summary>
+        /// File system location client read order index
+        /// </summary>
         public const int FSLI4BX_READORDER = 10;
+        /// <summary>
+        /// Set group ID on execution bit
+        /// </summary>
         public const int MODE4_SGID = 0x400;
+        /// <summary>
+        /// Open share deny read mode
+        /// </summary>
         public const int OPEN4_SHARE_DENY_READ = 0x00000001;
+        /// <summary>
+        /// Exchange ID flag update confirmed record A
+        /// </summary>
         public const int EXCHGID4_FLAG_UPD_CONFIRMED_REC_A = 0x40000000;
+        /// <summary>
+        /// Maximum 32-bit signed integer value
+        /// </summary>
         public const int NFS4_INT32_MAX = 0x7fffffff;
+        /// <summary>
+        /// Exchange ID flag use as pNFS metadata server
+        /// </summary>
         public const int EXCHGID4_FLAG_USE_PNFS_MDS = 0x00020000;
+        /// <summary>
+        /// File system location general flag absent
+        /// </summary>
         public const int FSLI4GF_ABSENT = 0x04;
+        /// <summary>
+        /// Access allowed ACE type
+        /// </summary>
         public const int ACE4_ACCESS_ALLOWED_ACE_TYPE = 0x00000000;
+        /// <summary>
+        /// Exchange ID flag bind principal to state ID
+        /// </summary>
         public const int EXCHGID4_FLAG_BIND_PRINC_STATEID = 0x00000100;
+        /// <summary>
+        /// File system character set capability contains non-UTF8
+        /// </summary>
         public const int FSCHARSET_CAP4_CONTAINS_NON_UTF8 = 0x1;
+        /// <summary>
+        /// Sequence status flag indicating recallable state revoked
+        /// </summary>
         public const int SEQ4_STATUS_RECALLABLE_STATE_REVOKED = 0x00000040;
+        /// <summary>
+        /// File system location client write verifier index
+        /// </summary>
         public const int FSLI4BX_CLWRITEVER = 5;
+        /// <summary>
+        /// Case insensitive attribute identifier
+        /// </summary>
         public const int FATTR4_CASE_INSENSITIVE = 16;
+        /// <summary>
+        /// Permission to read named attributes
+        /// </summary>
         public const int ACE4_READ_NAMED_ATTRS = 0x00000008;
+        /// <summary>
+        /// Generic write permission combination
+        /// </summary>
         public const int ACE4_GENERIC_WRITE = 0x00160106;
+        /// <summary>
+        /// Layout hint attribute identifier
+        /// </summary>
         public const int FATTR4_LAYOUT_HINT = 63;
+        /// <summary>
+        /// ACE no propagate inherit flag
+        /// </summary>
         public const int ACE4_NO_PROPAGATE_INHERIT_ACE = 0x00000004;
+        /// <summary>
+        /// Group write permission bit
+        /// </summary>
         public const int MODE4_WGRP = 0x010;
+        /// <summary>
+        /// Mode set masked attribute identifier
+        /// </summary>
         public const int FATTR4_MODE_SET_MASKED = 74;
+        /// <summary>
+        /// File system ID attribute identifier
+        /// </summary>
         public const int FATTR4_FSID = 8;
+        /// <summary>
+        /// Delete access permission
+        /// </summary>
         public const int ACCESS4_DELETE = 0x00000010;
+        /// <summary>
+        /// Owner attribute identifier
+        /// </summary>
         public const int FATTR4_OWNER = 36;
+        /// <summary>
+        /// Open result may notify lock flag
+        /// </summary>
         public const int OPEN4_RESULT_MAY_NOTIFY_LOCK = 0x00000020;
+        /// <summary>
+        /// Generic execute permission combination
+        /// </summary>
         public const int ACE4_GENERIC_EXECUTE = 0x001200A0;
+        /// <summary>
+        /// Open share access wants write delegation
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_WRITE_DELEG = 0x0200;
+        /// <summary>
+        /// Execute access permission
+        /// </summary>
         public const int ACCESS4_EXECUTE = 0x00000020;
+        /// <summary>
+        /// Sequence status flag indicating device ID changed
+        /// </summary>
         public const int SEQ4_STATUS_DEVID_CHANGED = 0x00000800;
+        /// <summary>
+        /// Create session flag for RDMA connection
+        /// </summary>
         public const int CREATE_SESSION4_FLAG_CONN_RDMA = 0x00000004;
+        /// <summary>
+        /// Time backup attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_BACKUP = 49;
+        /// <summary>
+        /// File handle attribute identifier
+        /// </summary>
         public const int FATTR4_FILEHANDLE = 19;
+        /// <summary>
+        /// Retention event get attribute identifier
+        /// </summary>
         public const int FATTR4_RETENTEVT_GET = 71;
+        /// <summary>
+        /// File system location client write rank index
+        /// </summary>
         public const int FSLI4BX_WRITERANK = 9;
+        /// <summary>
+        /// Sequence status flag indicating backchannel fault
+        /// </summary>
         public const int SEQ4_STATUS_BACKCHANNEL_FAULT = 0x00000400;
+        /// <summary>
+        /// Open share deny none mode
+        /// </summary>
         public const int OPEN4_SHARE_DENY_NONE = 0x00000000;
+        /// <summary>
+        /// Permission to delete child from directory
+        /// </summary>
         public const int ACE4_DELETE_CHILD = 0x00000040;
+        /// <summary>
+        /// Sequence status flag indicating device ID deleted
+        /// </summary>
         public const int SEQ4_STATUS_DEVID_DELETED = 0x00001000;
+        /// <summary>
+        /// Create session flag for backchannel connection
+        /// </summary>
         public const int CREATE_SESSION4_FLAG_CONN_BACK_CHAN = 0x00000002;
+        /// <summary>
+        /// System file attribute identifier
+        /// </summary>
         public const int FATTR4_SYSTEM = 46;
+        /// <summary>
+        /// Create session flag for persistent session
+        /// </summary>
         public const int CREATE_SESSION4_FLAG_PERSIST = 0x00000001;
+        /// <summary>
+        /// File system location client readdir index
+        /// </summary>
         public const int FSLI4BX_CLREADDIR = 7;
+        /// <summary>
+        /// File handle expire type attribute identifier
+        /// </summary>
         public const int FATTR4_FH_EXPIRE_TYPE = 2;
+        /// <summary>
+        /// Failed access ACE flag
+        /// </summary>
         public const int ACE4_FAILED_ACCESS_ACE_FLAG = 0x00000020;
+        /// <summary>
+        /// Archive file attribute identifier
+        /// </summary>
         public const int FATTR4_ARCHIVE = 14;
+        /// <summary>
+        /// File system locations attribute identifier
+        /// </summary>
         public const int FATTR4_FS_LOCATIONS = 24;
+        /// <summary>
+        /// Exchange ID flag supports moved referral
+        /// </summary>
         public const int EXCHGID4_FLAG_SUPP_MOVED_REFER = 0x00000001;
+        /// <summary>
+        /// Change attribute identifier
+        /// </summary>
         public const int FATTR4_CHANGE = 3;
+        /// <summary>
+        /// ACL supports deny ACL flag
+        /// </summary>
         public const int ACL4_SUPPORT_DENY_ACL = 0x00000002;
+        /// <summary>
+        /// Retention set attribute identifier
+        /// </summary>
         public const int FATTR4_RETENTION_SET = 70;
+        /// <summary>
+        /// Layout return record file system ID type
+        /// </summary>
         public const int LAYOUT4_RET_REC_FSID = 2;
+        /// <summary>
+        /// Open result preserve unlinked flag
+        /// </summary>
         public const int OPEN4_RESULT_PRESERVE_UNLINKED = 0x00000008;
+        /// <summary>
+        /// File system locations info attribute identifier
+        /// </summary>
         public const int FATTR4_FS_LOCATIONS_INFO = 67;
+        /// <summary>
+        /// Exchange ID flag pNFS mask
+        /// </summary>
         public const int EXCHGID4_FLAG_MASK_PNFS = 0x00070000;
+        /// <summary>
+        /// Read attribute error attribute identifier
+        /// </summary>
         public const int FATTR4_RDATTR_ERROR = 11;
+        /// <summary>
+        /// Open result requires confirmation flag
+        /// </summary>
         public const int OPEN4_RESULT_CONFIRM = 0x00000002;
+        /// <summary>
+        /// File type attribute identifier
+        /// </summary>
         public const int FATTR4_TYPE = 1;
+        /// <summary>
+        /// Maximum 64-bit signed integer value
+        /// </summary>
         public const long NFS4_INT64_MAX = 0x7fffffffffffffff;
+        /// <summary>
+        /// Open share access read mode
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_READ = 0x00000001;
+        /// <summary>
+        /// File system status attribute identifier
+        /// </summary>
         public const int FATTR4_FS_STATUS = 61;
+        /// <summary>
+        /// Open share deny both read and write mode
+        /// </summary>
         public const int OPEN4_SHARE_DENY_BOTH = 0x00000003;
+        /// <summary>
+        /// File system location general flag going
+        /// </summary>
         public const int FSLI4GF_GOING = 0x08;
+        /// <summary>
+        /// Time create attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_CREATE = 50;
+        /// <summary>
+        /// System alarm ACE type
+        /// </summary>
         public const int ACE4_SYSTEM_ALARM_ACE_TYPE = 0x00000003;
+        /// <summary>
+        /// Threshold read size type
+        /// </summary>
         public const int TH4_READ_SIZE = 0;
+        /// <summary>
+        /// NFSv4 layout utility flag commit through metadata server
+        /// </summary>
         public const int NFL4_UFLG_COMMIT_THRU_MDS = 0x00000002;
+        /// <summary>
+        /// NFS version 4 RPC program number
+        /// </summary>
         public const int NFS4_PROGRAM = 100003;
+        /// <summary>
+        /// File ID attribute identifier
+        /// </summary>
         public const int FATTR4_FILEID = 20;
+        /// <summary>
+        /// Open share access wants no delegation preference
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_NO_PREFERENCE = 0x0000;
+        /// <summary>
+        /// ACL protected flag
+        /// </summary>
         public const int ACL4_PROTECTED = 0x00000002;
+        /// <summary>
+        /// Open share deny write mode
+        /// </summary>
         public const int OPEN4_SHARE_DENY_WRITE = 0x00000002;
+        /// <summary>
+        /// Maximum read size attribute identifier
+        /// </summary>
         public const int FATTR4_MAXREAD = 30;
+        /// <summary>
+        /// File system layout types attribute identifier
+        /// </summary>
         public const int FATTR4_FS_LAYOUT_TYPES = 62;
+        /// <summary>
+        /// Open share access wants to cancel delegation
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_CANCEL = 0x0500;
+        /// <summary>
+        /// Modify file access permission
+        /// </summary>
         public const int ACCESS4_MODIFY = 0x00000004;
+        /// <summary>
+        /// Permission to write retention
+        /// </summary>
         public const int ACE4_WRITE_RETENTION = 0x00000200;
+        /// <summary>
+        /// File handle does not expire with open flag
+        /// </summary>
         public const int FH4_NOEXPIRE_WITH_OPEN = 0x00000001;
+        /// <summary>
+        /// Sequence status flag indicating all expired state revoked
+        /// </summary>
         public const int SEQ4_STATUS_EXPIRED_ALL_STATE_REVOKED = 0x00000008;
+        /// <summary>
+        /// Permission to delete file
+        /// </summary>
         public const int ACE4_DELETE = 0x00010000;
+        /// <summary>
+        /// Sticky bit (restricted deletion flag)
+        /// </summary>
         public const int MODE4_SVTX = 0x200;
+        /// <summary>
+        /// MIME type attribute identifier
+        /// </summary>
         public const int FATTR4_MIMETYPE = 32;
+        /// <summary>
+        /// Maximum 64-bit unsigned integer value
+        /// </summary>
         public const ulong NFS4_UINT64_MAX = 0xffffffffffffffff;
+        /// <summary>
+        /// Change ownership restricted attribute identifier
+        /// </summary>
         public const int FATTR4_CHOWN_RESTRICTED = 18;
+        /// <summary>
+        /// Read access permission
+        /// </summary>
         public const int ACCESS4_READ = 0x00000001;
+        /// <summary>
+        /// NFS version 4 NULL procedure number
+        /// </summary>
         public const int NFSPROC4_NULL_4 = 0;
+        /// <summary>
+        /// File handle volatile on migration flag
+        /// </summary>
         public const int FH4_VOL_MIGRATION = 0x00000004;
+        /// <summary>
+        /// Mounted on file ID attribute identifier
+        /// </summary>
         public const int FATTR4_MOUNTED_ON_FILEID = 55;
+        /// <summary>
+        /// Directory entry notification delay attribute identifier
+        /// </summary>
         public const int FATTR4_DIRENT_NOTIF_DELAY = 57;
+        /// <summary>
+        /// Metadata server threshold attribute identifier
+        /// </summary>
         public const int FATTR4_MDSTHRESHOLD = 68;
+        /// <summary>
+        /// Maximum file size attribute identifier
+        /// </summary>
         public const int FATTR4_MAXFILESIZE = 27;
+        /// <summary>
+        /// Permission to write file data
+        /// </summary>
         public const int ACE4_WRITE_DATA = 0x00000002;
+        /// <summary>
+        /// ACL supports audit ACL flag
+        /// </summary>
         public const int ACL4_SUPPORT_AUDIT_ACL = 0x00000004;
+        /// <summary>
+        /// Space available attribute identifier
+        /// </summary>
         public const int FATTR4_SPACE_AVAIL = 42;
+        /// <summary>
+        /// File system location client simultaneous index
+        /// </summary>
         public const int FSLI4BX_CLSIMUL = 2;
+        /// <summary>
+        /// Exchange ID flag confirmed reply
+        /// </summary>
         public const long EXCHGID4_FLAG_CONFIRMED_R = 0x80000000;
+        /// <summary>
+        /// ACL support attribute identifier
+        /// </summary>
         public const int FATTR4_ACLSUPPORT = 13;
+        /// <summary>
+        /// File system location general flags index
+        /// </summary>
         public const int FSLI4BX_GFLAGS = 0;
+        /// <summary>
+        /// Can set time attribute identifier
+        /// </summary>
         public const int FATTR4_CANSETTIME = 15;
+        /// <summary>
+        /// Directory notification delay attribute identifier
+        /// </summary>
         public const int FATTR4_DIR_NOTIF_DELAY = 56;
+        /// <summary>
+        /// File system location client write order index
+        /// </summary>
         public const int FSLI4BX_WRITEORDER = 11;
+        /// <summary>
+        /// Sequence status flag indicating callback path down for session
+        /// </summary>
         public const int SEQ4_STATUS_CB_PATH_DOWN_SESSION = 0x00000200;
+        /// <summary>
+        /// Time metadata attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_METADATA = 52;
+        /// <summary>
+        /// Owner group attribute identifier
+        /// </summary>
         public const int FATTR4_OWNER_GROUP = 37;
+        /// <summary>
+        /// Open share access wants signal delegation when resource available
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_SIGNAL_DELEG_WHEN_RESRC_AVAIL = 0x10000;
+        /// <summary>
+        /// ACL supports allow ACL flag
+        /// </summary>
         public const int ACL4_SUPPORT_ALLOW_ACL = 0x00000001;
+        /// <summary>
+        /// Time modify attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_MODIFY = 53;
+        /// <summary>
+        /// Case preserving attribute identifier
+        /// </summary>
         public const int FATTR4_CASE_PRESERVING = 17;
+        /// <summary>
+        /// File system location transport flag RDMA
+        /// </summary>
         public const int FSLI4TF_RDMA = 0x01;
+        /// <summary>
+        /// Maximum 32-bit unsigned integer value
+        /// </summary>
         public const uint NFS4_UINT32_MAX = 0xffffffff;
+        /// <summary>
+        /// Sequence status flag indicating restart reclaim needed
+        /// </summary>
         public const int SEQ4_STATUS_RESTART_RECLAIM_NEEDED = 0x00000100;
+        /// <summary>
+        /// NFSv4 layout utility flag stripe unit size mask
+        /// </summary>
         public const uint NFL4_UFLG_STRIPE_UNIT_SIZE_MASK = 0xFFFFFFC0;
+        /// <summary>
+        /// Symlink support attribute identifier
+        /// </summary>
         public const int FATTR4_SYMLINK_SUPPORT = 6;
+        /// <summary>
+        /// Hard quota available attribute identifier
+        /// </summary>
         public const int FATTR4_QUOTA_AVAIL_HARD = 38;
+        /// <summary>
+        /// Raw device attribute identifier
+        /// </summary>
         public const int FATTR4_RAWDEV = 41;
+        /// <summary>
+        /// Supported attributes for exclusive create attribute identifier
+        /// </summary>
         public const int FATTR4_SUPPATTR_EXCLCREAT = 75;
+        /// <summary>
+        /// NFS version 4 COMPOUND procedure number
+        /// </summary>
         public const int NFSPROC4_COMPOUND_4 = 1;
+        /// <summary>
+        /// Number of links attribute identifier
+        /// </summary>
         public const int FATTR4_NUMLINKS = 35;
+        /// <summary>
+        /// Open share access wants read delegation
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_WANT_READ_DELEG = 0x0100;
+        /// <summary>
+        /// Threshold read IO size type
+        /// </summary>
         public const int TH4_READ_IOSIZE = 2;
+        /// <summary>
+        /// Other read permission bit
+        /// </summary>
         public const int MODE4_ROTH = 0x004;
+        /// <summary>
+        /// Time access attribute identifier
+        /// </summary>
         public const int FATTR4_TIME_ACCESS = 47;
+        /// <summary>
+        /// No truncate attribute identifier
+        /// </summary>
         public const int FATTR4_NO_TRUNC = 34;
+        /// <summary>
+        /// Link support attribute identifier
+        /// </summary>
         public const int FATTR4_LINK_SUPPORT = 5;
+        /// <summary>
+        /// ACE directory inherit flag
+        /// </summary>
         public const int ACE4_DIRECTORY_INHERIT_ACE = 0x00000002;
+        /// <summary>
+        /// Permission to append data to file
+        /// </summary>
         public const int ACE4_APPEND_DATA = 0x00000004;
+        /// <summary>
+        /// Discretionary ACL attribute identifier
+        /// </summary>
         public const int FATTR4_DACL = 58;
+        /// <summary>
+        /// Permission to execute file
+        /// </summary>
         public const int ACE4_EXECUTE = 0x00000020;
+        /// <summary>
+        /// Verifier size in bytes
+        /// </summary>
         public const int NFS4_VERIFIER_SIZE = 8;
+        /// <summary>
+        /// Threshold write IO size type
+        /// </summary>
         public const int TH4_WRITE_IOSIZE = 3;
+        /// <summary>
+        /// Retention event set attribute identifier
+        /// </summary>
         public const int FATTR4_RETENTEVT_SET = 72;
+        /// <summary>
+        /// Sequence status flag indicating lease moved
+        /// </summary>
         public const int SEQ4_STATUS_LEASE_MOVED = 0x00000080;
+        /// <summary>
+        /// Permission to write owner
+        /// </summary>
         public const int ACE4_WRITE_OWNER = 0x00080000;
+        /// <summary>
+        /// Open share access both read and write mode
+        /// </summary>
         public const int OPEN4_SHARE_ACCESS_BOTH = 0x00000003;
     }
 }
-
-// End of NFSv4Protocol.cs

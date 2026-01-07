@@ -4,116 +4,100 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-using System.Net;
-
-/**
- * The class <code>NFSv2MountProtocolClient</code> implements the client stub proxy
- * for the MOUNTPROG remote program. It provides method stubs
- * which, when called, in turn call the appropriate remote method (procedure).
- */
-
 namespace NFSLibrary.Protocols.V2.RPC.Mount
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    using System.Net;
+
+    /// <summary>
+    /// Represents the client stub proxy for the NFS v2 mount protocol operations.
+    /// </summary>
     public class NFSv2MountProtocolClient : OncRpcClientStub
     {
-        /**
-         * Constructs a <code>NFSv2MountProtocolClient</code> client stub proxy object
-         * from which the MOUNTPROG remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2MountProtocolClient(IPAddress host, int protocol)
             : base(host, NFSv2MountProtocol.MOUNTPROG, 1, 0, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv2MountProtocolClient(IPAddress host, int protocol, bool useSecurePort)
             : base(host, NFSv2MountProtocol.MOUNTPROG, 1, 0, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2MountProtocolClient</code> client stub proxy object
-         * from which the MOUNTPROG remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2MountProtocolClient(IPAddress host, int port, int protocol)
             : base(host, NFSv2MountProtocol.MOUNTPROG, 1, port, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2MountProtocolClient</code> client stub proxy object
-         * from which the MOUNTPROG remote program can be accessed.
-         * @param client ONC/RPC client connection object implementing a particular
-         *   protocol.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="client">The ONC/RPC client connection object.</param>
         public NFSv2MountProtocolClient(OncRpcClient client)
             : base(client)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2MountProtocolClient</code> client stub proxy object
-         * from which the MOUNTPROG remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2MountProtocolClient(IPAddress host, int program, int version, int protocol)
             : base(host, program, version, 0, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2MountProtocolClient</code> client stub proxy object
-         * from which the MOUNTPROG remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2MountProtocolClient(IPAddress host, int program, int version, int port, int protocol)
             : base(host, program, version, port, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the mount server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv2MountProtocolClient(IPAddress host, int program, int version, int port, int protocol, bool useSecurePort)
             : base(host, program, version, port, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_NULL_1.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_NULL procedure to test server availability.
+        /// </summary>
         public void MOUNTPROC_NULL()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -122,14 +106,11 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             client.call(NFSv2MountProtocol.MOUNTPROC_NULL, NFSv2MountProtocol.MOUNTVERS, args_, result_);
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_MNT_1.
-         * @param arg1 parameter (of type dirpath) to the remote procedure call.
-         * @return Result from remote procedure call (of type fhstatus).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_MNT procedure to mount a file system.
+        /// </summary>
+        /// <param name="arg1">The directory path to mount.</param>
+        /// <returns>The mount status result containing the file handle.</returns>
         public MountStatus MOUNTPROC_MNT(Name arg1)
         {
             MountStatus result_ = new MountStatus();
@@ -139,13 +120,10 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             return result_;
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_DUMP_1.
-         * @return Result from remote procedure call (of type mountlist).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_DUMP procedure to retrieve the list of mounted file systems.
+        /// </summary>
+        /// <returns>The mount list result.</returns>
         public MountList MOUNTPROC_DUMP()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -156,13 +134,10 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             return result_;
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_UMNT_1.
-         * @param arg1 parameter (of type dirpath) to the remote procedure call.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_UMNT procedure to unmount a file system.
+        /// </summary>
+        /// <param name="arg1">The directory path to unmount.</param>
         public void MOUNTPROC_UMNT(Name arg1)
         {
             XdrVoid result_ = XdrVoid.XDR_VOID;
@@ -170,12 +145,9 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             client.call(NFSv2MountProtocol.MOUNTPROC_UMNT, NFSv2MountProtocol.MOUNTVERS, arg1, result_);
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_UMNTALL_1.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_UMNTALL procedure to unmount all file systems.
+        /// </summary>
         public void MOUNTPROC_UMNTALL()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -184,13 +156,10 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             client.call(NFSv2MountProtocol.MOUNTPROC_UMNTALL, NFSv2MountProtocol.MOUNTVERS, args_, result_);
         }
 
-        /**
-         * Call remote procedure MOUNTPROC_EXPORT_1.
-         * @return Result from remote procedure call (of type exports).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote MOUNTPROC_EXPORT procedure to retrieve the export list.
+        /// </summary>
+        /// <returns>The exports result containing available exports.</returns>
         public Exports MOUNTPROC_EXPORT()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;

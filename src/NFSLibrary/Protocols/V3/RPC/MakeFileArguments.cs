@@ -4,127 +4,71 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for file creation operations for NFS v3 protocol operations.
+    /// </summary>
     public class MakeFileArguments : XdrAble
     {
-        private ItemOperationArguments _where;
-        private MakeFileHow _how;
+        private ItemOperationArguments _Where;
+        private MakeFileHow _How;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MakeFileArguments"/> class.
+        /// </summary>
         public MakeFileArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MakeFileArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public MakeFileArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._where.xdrEncode(xdr);
-            this._how.xdrEncode(xdr);
+            this._Where.XdrEncode(xdr);
+            this._How.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._where = new ItemOperationArguments(xdr);
-            this._how = new MakeFileHow(xdr);
+            this._Where = new ItemOperationArguments(xdr);
+            this._How = new MakeFileHow(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the location (directory and name) where the file should be created.
+        /// </summary>
         public ItemOperationArguments Where
         {
             get
-            { return this._where; }
+            { return this._Where; }
             set
-            { this._where = value; }
+            { this._Where = value; }
         }
 
+        /// <summary>
+        /// Gets or sets how the file should be created.
+        /// </summary>
         public MakeFileHow How
         {
             get
-            { return this._how; }
+            { return this._How; }
             set
-            { this._how = value; }
+            { this._How = value; }
         }
     }
-
-    public class MakeFileHow : XdrAble
-    {
-        private MakeFileModes _mode;
-        private MakeAttributes _obj_attributes;
-        private byte[] _verf;
-
-        public enum MakeFileModes
-        {
-            UNCHECKED = 0,
-            GUARDED = 1,
-            EXCLUSIVE = 2
-        }
-
-        public MakeFileHow()
-        { }
-
-        public MakeFileHow(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
-
-        public void xdrEncode(XdrEncodingStream xdr)
-        {
-            xdr.xdrEncodeInt((int)this._mode);
-
-            switch (this._mode)
-            {
-                case MakeFileModes.UNCHECKED:
-                case MakeFileModes.GUARDED:
-                    this._obj_attributes.xdrEncode(xdr);
-                    break;
-
-                case MakeFileModes.EXCLUSIVE:
-                    xdr.xdrEncodeOpaque(this._verf, NFSv3Protocol.NFS3_CREATEVERFSIZE);
-                    break;
-            }
-        }
-
-        public void xdrDecode(XdrDecodingStream xdr)
-        {
-            this._mode = (MakeFileModes)xdr.xdrDecodeInt();
-
-            switch (this._mode)
-            {
-                case MakeFileModes.UNCHECKED:
-                case MakeFileModes.GUARDED:
-                    this._obj_attributes = new MakeAttributes(xdr);
-                    break;
-
-                case MakeFileModes.EXCLUSIVE:
-                    this._verf = xdr.xdrDecodeOpaque(NFSv3Protocol.NFS3_CREATEVERFSIZE);
-                    break;
-            }
-        }
-
-        public MakeFileModes Mode
-        {
-            get
-            { return this._mode; }
-            set
-            { this._mode = value; }
-        }
-
-        public MakeAttributes Attributes
-        {
-            get
-            { return this._obj_attributes; }
-            set
-            { this._obj_attributes = value; }
-        }
-
-        public byte[] Verification
-        {
-            get
-            { return this._verf; }
-            set
-            { this._verf = value; }
-        }
-    }
-
-    // End of CREATE3args.cs
 }

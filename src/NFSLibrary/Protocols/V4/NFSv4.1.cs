@@ -1,17 +1,19 @@
-﻿using NFSLibrary.Protocols.Commons;
-using NFSLibrary.Protocols.Commons.Exceptions;
-using NFSLibrary.Protocols.V4.RPC;
-using NFSLibrary.Protocols.V4.RPC.Stubs;
-using org.acplt.oncrpc;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using System.Timers;
-
 namespace NFSLibrary.Protocols.V4
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Protocols.Commons.Exceptions;
+    using NFSLibrary.Protocols.V4.RPC;
+    using NFSLibrary.Protocols.V4.RPC.Stubs;
+    using NFSLibrary.Rpc;
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Text;
+    using System.Timers;
+
+    /// <summary>
+    /// Implements the NFSv4.1 protocol for network file system operations.
+    /// </summary>
     public class NFSv4 : INFS
     {
         #region Fields
@@ -24,89 +26,114 @@ namespace NFSLibrary.Protocols.V4
         private int _GroupID = -1;
         private int _UserID = -1;
 
-        private nfs_fh4 _rootFH = null;
+        private NfsFh4 _RootFH = null;
 
-        private clientid4 _clientIdByServer = null;
-        private sequenceid4 _sequenceID = null;
-        private sessionid4 _sessionid = null;
+        private Clientid4 _ClientIdByServer = null;
+        private Sequenceid4 _SequenceID = null;
+        private Sessionid4 _SessionId = null;
 
-        private bool useFHCache = false;
-        private Hashtable cached_attrs = null;
+        private bool _UseFHCache = false;
+        private FileHandleCache? _FileHandleCache = null;
 
-        //private Dictionary<string, NFSAttributes> cached_attrs = null;
-
-        //create timerz
-        private Timer timer = null;
+        //create _Timerz
+        private Timer _Timer = null;
 
         //**************back to the roots*********************
 
         //current dir handle
-        //private nfs_fh4 _cwd = null;
+        //private NfsFh4 _cwd = null;
         //current file handle  (read ,write)
-        private nfs_fh4 _cwf = null;
+        private NfsFh4 _Cwf = null;
 
         //before write dir handle and other
-        //private nfs_fh4 _cWwf = null;
+        //private NfsFh4 _cWwf = null;
         //private string _beforeWritePath = null;
 
-        private stateid4 currentState = null;
+        private Stateid4 _CurrentState = null;
         //private string _currentFolder;
 
-        //private List<nfs_fh4>  _cwhTree;
+        //private List<NfsFh4>  _cwhTree;
         //private int treePosition = 0;
 
-        private long _lastUpdate = -1;
+        private long _LastUpdate = -1;
 
-        private int maxTRrate;
-        private int maxRXrate;
+        private int _MaxTRrate;
+        private int _MaxRXrate;
+
+        private bool _Disposed = false;
 
         #endregion Fields
 
         #region Constructur
 
-        public void Connect(IPAddress Address, int UserID, int GroupID, int ClientTimeout, System.Text.Encoding characterEncoding, bool useSecurePort, bool useCache)
+        /// <summary>
+        /// Establishes a connection to an NFSv4.1 server.
+        /// </summary>
+        /// <param name="address">The IP address of the NFS server.</param>
+        /// <param name="userId">The user ID for authentication.</param>
+        /// <param name="groupId">The group ID for authentication.</param>
+        /// <param name="clientTimeout">The timeout in milliseconds for client operations. Uses 60000ms if set to 0.</param>
+        /// <param name="characterEncoding">The character encoding to use. Uses ASCII if null.</param>
+        /// <param name="useSecurePort">Whether to use a secure port for communication.</param>
+        /// <param name="useFhCache">Whether to enable file handle caching for improved performance.</param>
+        /// <param name="nfsPort">The NFS server port. Use 0 to discover via portmapper, or 2049 for standard NFSv4 port.</param>
+        /// <param name="mountPort">Ignored for NFSv4 (no mount protocol).</param>
+        public void Connect(IPAddress address, int userId, int groupId, int clientTimeout, System.Text.Encoding characterEncoding, bool useSecurePort, bool useFhCache, int nfsPort = 0, int mountPort = 0)
         {
-            if (ClientTimeout == 0)
-            { ClientTimeout = 60000; }
+            if (clientTimeout == 0)
+            { clientTimeout = 60000; }
 
             if (characterEncoding == null)
             { characterEncoding = System.Text.Encoding.ASCII; }
 
             _CurrentItem = String.Empty;
 
-            useFHCache = useCache;
+            _UseFHCache = useFhCache;
 
-            if (useFHCache)
-                cached_attrs = new Hashtable();//new Dictionary<string, NFSAttributes>();
+            if (_UseFHCache)
+                _FileHandleCache = new FileHandleCache(
+                    defaultExpiration: TimeSpan.FromSeconds(30),
+                    enableAutoCleanup: true);
 
-            _rootFH = null;
+            _RootFH = null;
 
             //_cwd = null;
 
-            _cwf = null;
+            _Cwf = null;
 
-            //_cwhTree = new List<nfs_fh4>();
+            //_cwhTree = new List<NfsFh4>();
             //treePosition = 0;
 
-            _GroupID = GroupID;
-            _UserID = UserID;
+            _GroupID = groupId;
+            _UserID = userId;
 
-            _ProtocolV4 = new NFSv4ProtocolClient(Address, OncRpcProtocols.ONCRPC_TCP, useSecurePort);
+            // Use specified NFS port if provided, otherwise let portmapper discover it
+            if (nfsPort > 0)
+            {
+                _ProtocolV4 = new NFSv4ProtocolClient(address, nfsPort, OncRpcProtocols.ONCRPC_TCP);
+            }
+            else
+            {
+                _ProtocolV4 = new NFSv4ProtocolClient(address, OncRpcProtocols.ONCRPC_TCP, useSecurePort);
+            }
 
-            OncRpcClientAuthUnix authUnix = new OncRpcClientAuthUnix(Address.ToString(), UserID, GroupID);
+            OncRpcClientAuthUnix authUnix = new OncRpcClientAuthUnix(address.ToString(), userId, groupId);
 
-            _ProtocolV4.GetClient().setAuth(authUnix);
-            _ProtocolV4.GetClient().setTimeout(ClientTimeout);
-            _ProtocolV4.GetClient().setCharacterEncoding(characterEncoding.WebName);
+            _ProtocolV4.GetClient().SetAuth(authUnix);
+            _ProtocolV4.GetClient().SetTimeout(clientTimeout);
+            _ProtocolV4.GetClient().SetCharacterEncoding(characterEncoding.WebName);
 
             //send null dummy procedure to see if server is responding
-            sendNullPRocedure();
+            SendNullProcedure();
         }
 
         #endregion Constructur
 
         #region Public Methods
 
+        /// <summary>
+        /// Disconnects from the NFSv4.1 server and releases session resources.
+        /// </summary>
         public void Disconnect()
         {
             //_RootDirectoryHandleObject = null;
@@ -118,62 +145,93 @@ namespace NFSLibrary.Protocols.V4
             if (_ProtocolV4 != null)
             {
                 //new thingy in nfs 4.1
-                destroy_session();
+                DestroySession();
 
-                if (timer != null)
-                    timer.Close();
+                if (_Timer != null)
+                    _Timer.Close();
 
                 //not supported in major linux distibutions
-                //destroy_clientId();
-                _ProtocolV4.close();
+                //DestroyClientId();
+                _ProtocolV4.Close();
             }
         }
 
+        /// <summary>
+        /// Gets the optimal block size for read and write operations based on server capabilities.
+        /// </summary>
+        /// <returns>The block size in bytes, capped at 65236 bytes.</returns>
         public int GetBlockSize()
         {
-            if (maxTRrate > 7900 && maxRXrate > 7900)
+            if (_MaxTRrate > 7900 && _MaxRXrate > 7900)
             {
-                if (maxTRrate > 65236 && maxRXrate > 65236)
+                if (_MaxTRrate > 65236 && _MaxRXrate > 65236)
                     return 65236;
-                else if (maxTRrate == maxRXrate)
-                    return maxTRrate - 200;
-                else if (maxTRrate < maxRXrate)
-                    return maxTRrate - 200;
+                else if (_MaxTRrate == _MaxRXrate)
+                    return _MaxTRrate - 200;
+                else if (_MaxTRrate < _MaxRXrate)
+                    return _MaxTRrate - 200;
                 else
-                    return maxRXrate - 200;
+                    return _MaxRXrate - 200;
             }
             else
                 return 7900;
         }
 
+        /// <summary>
+        /// Gets the list of exported file systems from the NFS server.
+        /// </summary>
+        /// <returns>A list of exported device paths. NFSv4.1 returns only the root "/" as a single export.</returns>
         public List<String> GetExportedDevices()
         {
             List<string> nfsDevices = new List<string>();
             nfsDevices.Add("/");
 
-            //will mount here because we need to mount only once and devices are not possible to get
-            //call first mount
-            mount();
-            //_currentFolder = ".";
+            // Only create session if not already established
+            // Calling mount() again would create a new session which can cause issues
+            if (_SessionId == null)
+            {
+                Mount();
+            }
 
             return nfsDevices;
         }
 
-        public void MountDevice(String DeviceName)
+        /// <summary>
+        /// Mounts the specified NFS device.
+        /// </summary>
+        /// <param name="deviceName">The name of the device to mount.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected.</exception>
+        public void MountDevice(String deviceName)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            getRootFh();
-            reclaim_complete();
+            // Ensure session is established (NFSv4.1 requirement)
+            if (_SessionId == null)
+            {
+                Mount();
+            }
+
+            GetRootFh();
+            ReclaimComplete();
         }
 
+        /// <summary>
+        /// Unmounts the currently mounted NFS device.
+        /// </summary>
         public void UnMountDevice()
         {
             //maybe we need something to do here also
         }
 
-        public List<String> GetItemList(String DirectoryFullName)
+        /// <summary>
+        /// Retrieves a list of items (files and directories) in the specified directory.
+        /// </summary>
+        /// <param name="directoryFullName">The full path of the directory. Use "." for the root directory.</param>
+        /// <returns>A list of item names in the directory.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected.</exception>
+        /// <exception cref="NFSGeneralException">Thrown when access is denied or other NFS errors occur.</exception>
+        public List<String> GetItemList(String directoryFullName)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
@@ -181,7 +239,7 @@ namespace NFSLibrary.Protocols.V4
             /*if (DirectoryFullName == ".")
             {
                 //root
-                _cwd = _rootFH;
+                _cwd = _RootFH;
                 _cwhTree.Add(_cwd);
             }
             else if (_currentFolder == DirectoryFullName)
@@ -205,106 +263,126 @@ namespace NFSLibrary.Protocols.V4
                 _cwd =_cwhTree[treePosition];
             }*/
 
-            //_currentFolder = DirectoryFullName;
-            if (String.IsNullOrEmpty(DirectoryFullName) || DirectoryFullName == ".")
-                return GetItemListByFH(_rootFH);
+            //_currentFolder = directoryFullName;
+            if (String.IsNullOrEmpty(directoryFullName) || directoryFullName == ".")
+                return GetItemListByFH(_RootFH);
 
             //simpler way than tree
-            NFSAttributes itemAttributes = GetItemAttributes(DirectoryFullName);
+            NFSAttributes itemAttributes = GetItemAttributes(directoryFullName);
 
             //true dat
-            return GetItemListByFH(new nfs_fh4(itemAttributes.Handle));
+            return GetItemListByFH(new NfsFh4(itemAttributes.Handle));
         }
 
-        public List<String> GetItemListByFH(nfs_fh4 dir_fh)
+        /// <summary>
+        /// Retrieves a list of items in a directory using a file handle.
+        /// </summary>
+        /// <param name="dir_fh">The file handle of the directory.</param>
+        /// <returns>A list of item names in the directory.</returns>
+        /// <exception cref="NFSGeneralException">Thrown when access is denied or other NFS errors occur.</exception>
+        public List<String> GetItemListByFH(NfsFh4 dir_fh)
         {
             //should return result
-            int acess = get_fh_acess(dir_fh);
+            int access = GetFileHandleAccess(dir_fh);
 
             List<string> ItemsList = new List<string>();
 
-            //has read acess
-            if (acess % 2 == 1)
+            //has read access
+            if (access % 2 == 1)
             {
                 bool done = false;
                 long cookie = 0;
 
-                verifier4 verifier = new verifier4(0);
+                Verifier4 verifier = new Verifier4(0);
 
                 do
                 {
-                    List<nfs_argop4> ops = new List<nfs_argop4>();
-                    ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                            _sequenceID.value.value, 12, 0));
-                    ops.Add(PutfhStub.generateRequest(dir_fh));
-                    ops.Add(ReadDirStub.generateRequest(cookie, verifier));
+                    List<NfsArgop4> ops = new List<NfsArgop4>();
+                    ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                            _SequenceID.Value.Value, 12, 0));
+                    ops.Add(PutfhStub.GenerateRequest(dir_fh));
+                    ops.Add(ReadDirStub.GenerateRequest(cookie, verifier));
 
-                    COMPOUND4res compound4res = sendCompound(ops, "");
+                    Compound4Res compound4res = SendCompound(ops, "");
 
-                    if (compound4res.status == nfsstat4.NFS4_OK)
+                    if (compound4res.Status == Nfsstat4.NFS4_OK)
                     {
-                        verifier = compound4res.resarray[2].opreaddir.resok4.cookieverf;
-                        done = compound4res.resarray[2].opreaddir.resok4.reply.eof;
+                        verifier = compound4res.Resarray[2].Opreaddir.Resok4.Cookieverf;
+                        done = compound4res.Resarray[2].Opreaddir.Resok4.Reply.Eof;
 
-                        entry4 dirEntry = compound4res.resarray[2].opreaddir.resok4.reply.entries;
+                        Entry4 dirEntry = compound4res.Resarray[2].Opreaddir.Resok4.Reply.Entries;
                         while (dirEntry != null)
                         {
-                            cookie = dirEntry.cookie.value.value;
-                            string name = System.Text.Encoding.UTF8.GetString(dirEntry.name.value.value.value);
+                            cookie = dirEntry.Cookie.Value.Value;
+                            string name = System.Text.Encoding.UTF8.GetString(dirEntry.Name.Value.Value.Value);
                             ItemsList.Add(name);
-                            dirEntry = dirEntry.nextentry;
+                            dirEntry = dirEntry.Nextentry;
                         }
                     }
                     else
                     {
-                        throw new NFSGeneralException(nfsstat4.getErrorString(compound4res.status));
+                        throw new NFSGeneralException(Nfsstat4.getErrorString(compound4res.Status));
                     }
                 } while (!done);
                 //now do the lookups (maintained by the nfsclient)
             }
             else
-                throw new NFSGeneralException(nfsstat4.getErrorString(nfsstat4.NFS4ERR_ACCESS));
+                throw new NFSGeneralException(Nfsstat4.getErrorString(Nfsstat4.NFS4ERR_ACCESS));
 
             return ItemsList;
         }
 
-        public NFSAttributes GetItemAttributes(string ItemFullName, bool ThrowExceptionIfNotFound = true)
+        /// <summary>
+        /// Retrieves the attributes of a file or directory.
+        /// </summary>
+        /// <param name="itemFullName">The full path of the item.</param>
+        /// <param name="throwExceptionIfNotFound">Whether to throw an exception if the item is not found. Default is true.</param>
+        /// <returns>The attributes of the item, or null if not found and throwExceptionIfNotFound is false.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or other connection errors occur.</exception>
+        public NFSAttributes GetItemAttributes(string itemFullName, bool throwExceptionIfNotFound = true)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            ItemFullName = ItemFullName.Replace(".\\.\\", ".\\");
+            itemFullName = itemFullName.Replace(".\\.\\", ".\\");
 
-            if (useFHCache)
-                if (cached_attrs.ContainsKey(ItemFullName))
-                    return (NFSAttributes)cached_attrs[ItemFullName];
+            if (_UseFHCache && _FileHandleCache != null)
+            {
+                NFSAttributes? cachedAttrs = _FileHandleCache.Get(itemFullName);
+                if (cachedAttrs != null)
+                    return cachedAttrs;
+            }
 
             //we will return it in the old way !! ;)
             NFSAttributes attributes = null;
 
-            if (String.IsNullOrEmpty(ItemFullName))
+            if (String.IsNullOrEmpty(itemFullName))
             {
                 //should not happen
                 return attributes;
             }
 
-            if (ItemFullName == ".\\.")
-                return new NFSAttributes(0, 0, 0, NFSItemTypes.NFDIR, new NFSPermission(7, 7, 7), 4096, _rootFH.value);
+            // Handle root directory (both "." and ".\.")
+            if (itemFullName == "." || itemFullName == ".\\.")
+                return new NFSAttributes(0, 0, 0, NFSItemTypes.NFDIR, new NFSPermission(7, 7, 7), 4096, _RootFH.Value);
 
-            nfs_fh4 currentItem = _rootFH;
+            NfsFh4 currentItem = _RootFH;
             int initial = 1;
-            String[] PathTree = ItemFullName.Split(@"\".ToCharArray());
+            String[] PathTree = itemFullName.Split(@"\".ToCharArray());
 
-            if (useFHCache)
+            if (_UseFHCache && _FileHandleCache != null)
             {
-                string parent = System.IO.Path.GetDirectoryName(ItemFullName);
+                string parent = System.IO.Path.GetDirectoryName(itemFullName);
                 //get cached parent dir to avoid too much directory
-                if (parent != ItemFullName)
-                    if (cached_attrs.ContainsKey(parent))
+                if (parent != itemFullName)
+                {
+                    NFSAttributes? parentAttrs = _FileHandleCache.Get(parent);
+                    if (parentAttrs != null)
                     {
-                        currentItem.value = ((NFSAttributes)cached_attrs[parent]).Handle;
+                        currentItem.Value = parentAttrs.Handle;
                         initial = PathTree.Length - 1;
                     }
+                }
             }
 
             for (int pC = initial; pC < PathTree.Length; pC++)
@@ -317,47 +395,47 @@ namespace NFSLibrary.Protocols.V4
                 attrs.Add(NFSv4Protocol.FATTR4_MODE);
                 attrs.Add(NFSv4Protocol.FATTR4_SIZE);
 
-                List<nfs_argop4> ops = new List<nfs_argop4>();
+                List<NfsArgop4> ops = new List<NfsArgop4>();
 
-                ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                        _sequenceID.value.value, 12, 0));
+                ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                        _SequenceID.Value.Value, 12, 0));
 
-                ops.Add(PutfhStub.generateRequest(currentItem));
-                ops.Add(LookupStub.generateRequest(PathTree[pC]));
+                ops.Add(PutfhStub.GenerateRequest(currentItem));
+                ops.Add(LookupStub.GenerateRequest(PathTree[pC]));
 
-                //ops.Add(PutfhStub.generateRequest(_cwd));
-                //ops.Add(LookupStub.generateRequest(PathTree[PathTree.Length-1]));
+                //ops.Add(PutfhStub.GenerateRequest(_cwd));
+                //ops.Add(LookupStub.GenerateRequest(PathTree[PathTree.Length-1]));
 
-                ops.Add(GetfhStub.generateRequest());
-                ops.Add(GetattrStub.generateRequest(attrs));
+                ops.Add(GetfhStub.GenerateRequest());
+                ops.Add(GetattrStub.GenerateRequest(attrs));
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
+                Compound4Res compound4res = SendCompound(ops, "");
 
-                if (compound4res.status == nfsstat4.NFS4_OK)
+                if (compound4res.Status == Nfsstat4.NFS4_OK)
                 {
-                    currentItem = compound4res.resarray[3].opgetfh.resok4.object1;
+                    currentItem = compound4res.Resarray[3].Opgetfh.Resok4.Object1;
 
-                    //nfs_fh4 currentItem = compound4res.resarray[3].opgetfh.resok4.object1;
+                    //NfsFh4 currentItem = compound4res.Resarray[3].Opgetfh.Resok4.Object1;
 
                     //results
-                    Dictionary<int, Object> attrrs_results = GetattrStub.decodeType(compound4res.resarray[4].opgetattr.resok4.obj_attributes);
+                    Dictionary<int, Object> attrrs_results = GetattrStub.DecodeType(compound4res.Resarray[4].Opgetattr.Resok4.Obj_attributes);
 
                     //times
-                    nfstime4 time_acc = (nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_ACCESS];
+                    Nfstime4 time_acc = (Nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_ACCESS];
 
-                    int time_acc_int = unchecked((int)time_acc.seconds.value);
+                    int time_acc_int = unchecked((int)time_acc.Seconds.Value);
 
-                    nfstime4 time_modify = (nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_MODIFY];
+                    Nfstime4 time_modify = (Nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_MODIFY];
 
-                    int time_modif = unchecked((int)time_modify.seconds.value);
+                    int time_modif = unchecked((int)time_modify.Seconds.Value);
 
                     int time_creat = 0;
                     //linux should now store create time if it is let's check it else use modify date
                     if (attrrs_results.ContainsKey(NFSv4Protocol.FATTR4_TIME_CREATE))
                     {
-                        nfstime4 time_create = (nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_CREATE];
+                        Nfstime4 time_create = (Nfstime4)attrrs_results[NFSv4Protocol.FATTR4_TIME_CREATE];
 
-                        time_creat = unchecked((int)time_create.seconds.value);
+                        time_creat = unchecked((int)time_create.Seconds.Value);
                     }
                     else
                         time_creat = time_modif;
@@ -365,44 +443,50 @@ namespace NFSLibrary.Protocols.V4
                     //3 = type
                     NFSItemTypes nfstype = NFSItemTypes.NFREG;
 
-                    fattr4_type type = (fattr4_type)attrrs_results[NFSv4Protocol.FATTR4_TYPE];
+                    Fattr4Type type = (Fattr4Type)attrrs_results[NFSv4Protocol.FATTR4_TYPE];
 
-                    if (type.value == 2)
+                    if (type.Value == 2)
                         nfstype = NFSItemTypes.NFDIR;
 
                     //4 = mode is int also
-                    mode4 mode = (mode4)attrrs_results[NFSv4Protocol.FATTR4_MODE];
+                    Mode4 mode = (Mode4)attrrs_results[NFSv4Protocol.FATTR4_MODE];
 
-                    byte other = (byte)(mode.value.value % 8);
+                    byte other = (byte)(mode.Value.Value % 8);
 
-                    byte grup = (byte)((mode.value.value >> 3) % 8);
+                    byte grup = (byte)((mode.Value.Value >> 3) % 8);
 
-                    byte user = (byte)((mode.value.value >> 6) % 8);
+                    byte user = (byte)((mode.Value.Value >> 6) % 8);
 
                     NFSPermission per = new NFSPermission(user, grup, other);
 
-                    uint64_t size = (uint64_t)attrrs_results[NFSv4Protocol.FATTR4_SIZE];
+                    Uint64T size = (Uint64T)attrrs_results[NFSv4Protocol.FATTR4_SIZE];
                     //here we do attributes compatible with old nfs versions
-                    attributes = new NFSAttributes(time_creat, time_acc_int, time_modif, nfstype, per, size.value, currentItem.value);
+                    attributes = new NFSAttributes(time_creat, time_acc_int, time_modif, nfstype, per, size.Value, currentItem.Value);
                 }
-                else if (compound4res.status == nfsstat4.NFS4ERR_NOENT)
+                else if (compound4res.Status == Nfsstat4.NFS4ERR_NOENT)
                 {
                     return null;
                 }
                 else
                 {
-                    throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                    throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
                 }
             }
 
             // if(attributes.NFSType == NFSItemTypes.NFDIR)
-            if (useFHCache)
-                cached_attrs.Add(ItemFullName, attributes);
+            if (_UseFHCache && _FileHandleCache != null)
+                _FileHandleCache.Set(itemFullName, attributes);
 
             return attributes;
         }
 
-        public void CreateDirectory(string DirectoryFullName, NFSPermission Mode)
+        /// <summary>
+        /// Creates a new directory on the NFS server.
+        /// </summary>
+        /// <param name="directoryFullName">The full path of the directory to create.</param>
+        /// <param name="mode">The permissions to set on the directory. If null, defaults to 777.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or creation fails.</exception>
+        public void CreateDirectory(string directoryFullName, NFSPermission mode)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
@@ -411,80 +495,90 @@ namespace NFSLibrary.Protocols.V4
             int group = 7;
             int other = 7;
 
-            if (Mode != null)
+            if (mode != null)
             {
-                user = Mode.UserAccess;
-                group = Mode.GroupAccess;
-                other = Mode.OtherAccess;
+                user = mode.UserAccess;
+                group = mode.GroupAccess;
+                other = mode.OtherAccess;
             }
 
-            string ParentDirectory = System.IO.Path.GetDirectoryName(DirectoryFullName);
-            string fileName = System.IO.Path.GetFileName(DirectoryFullName);
+            string ParentDirectory = System.IO.Path.GetDirectoryName(directoryFullName);
+            string fileName = System.IO.Path.GetFileName(directoryFullName);
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
             //create item attributes now
-            fattr4 attr = new fattr4();
+            Fattr4 attr = new Fattr4();
 
-            attr.attrmask = OpenStub.openFattrBitmap();
-            attr.attr_vals = new attrlist4();
-            attr.attr_vals.value = OpenStub.openAttrs(user, group, other, 4096);
+            attr.Attrmask = OpenStub.OpenFattrBitmap();
+            attr.Attr_vals = new Attrlist4();
+            attr.Attr_vals.Value = OpenStub.OpenAttrs(user, group, other, 4096);
 
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                    _sequenceID.value.value, 12, 0));
-            ops.Add(PutfhStub.generateRequest(new nfs_fh4(ParentItemAttributes.Handle)));
-            ops.Add(CreateStub.generateRequest(fileName, attr));
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(ParentItemAttributes.Handle)));
+            ops.Add(CreateStub.GenerateRequest(fileName, attr));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
                 //create directory ok
             }
-            else { throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status)); }
+            else { throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status)); }
         }
 
-        public void DeleteDirectory(string DirectoryFullName)
+        /// <summary>
+        /// Deletes a directory from the NFS server.
+        /// </summary>
+        /// <param name="directoryFullName">The full path of the directory to delete.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or deletion fails.</exception>
+        public void DeleteDirectory(string directoryFullName)
         {
             //nfs 4.1 now uses same support for folders and files
-            DeleteFile(DirectoryFullName);
+            DeleteFile(directoryFullName);
         }
 
-        public void DeleteFile(string FileFullName)
+        /// <summary>
+        /// Deletes a file from the NFS server.
+        /// </summary>
+        /// <param name="fileFullName">The full path of the file to delete.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or deletion fails.</exception>
+        public void DeleteFile(string fileFullName)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            // it seems acess doesent work ok in the server
-            //delete acess isn't showed but file can be deleted and should be deleted!
-            /*NFSAttributes atrs = GetItemAttributes(FileFullName);
+            // it seems access doesn't work ok in the server
+            //delete access isn't showed but file can be deleted and should be deleted!
+            /*NFSAttributes atrs = GetItemAttributes(fileFullName);
 
-          int acess = get_fh_acess(atrs.fh);
+          int access = GetFileHandleAccess(atrs.fh);
 
              //delete support
-          if ((acess >> 4) % 2 == 1)
+          if ((access >> 4) % 2 == 1)
           {*/
 
-            string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
-            string fileName = System.IO.Path.GetFileName(FileFullName);
+            string ParentDirectory = System.IO.Path.GetDirectoryName(fileFullName);
+            string fileName = System.IO.Path.GetFileName(fileFullName);
 
             NFSAttributes ParentItemAttributes = GetItemAttributes(ParentDirectory);
 
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                    _sequenceID.value.value, 12, 0));
-            ops.Add(PutfhStub.generateRequest(new nfs_fh4(ParentItemAttributes.Handle)));
-            ops.Add(RemoveStub.generateRequest(fileName));
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(ParentItemAttributes.Handle)));
+            ops.Add(RemoveStub.GenerateRequest(fileName));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
                 //ok - deleted
             }
-            else { throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status)); }
+            else { throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status)); }
 
             /* }
              else
@@ -493,344 +587,430 @@ namespace NFSLibrary.Protocols.V4
              }*/
 
             //only if we support caching
-            if (useFHCache)
-                cached_attrs.Remove(FileFullName);
+            if (_UseFHCache && _FileHandleCache != null)
+                _FileHandleCache.Invalidate(fileFullName);
         }
 
-        public void CreateFile(string FileFullName, NFSPermission Mode)
+        /// <summary>
+        /// Creates a new file on the NFS server.
+        /// </summary>
+        /// <param name="fileFullName">The full path of the file to create.</param>
+        /// <param name="mode">The permissions to set on the file.</param>
+        /// <exception cref="NFSConnectionException">Thrown when creation fails.</exception>
+        public void CreateFile(string fileFullName, NFSPermission mode)
         {
-            if (_CurrentItem != FileFullName)
+            if (_CurrentItem != fileFullName)
             {
-                _CurrentItem = FileFullName;
+                _CurrentItem = fileFullName;
 
-                String[] PathTree = FileFullName.Split(@"\".ToCharArray());
+                String[] PathTree = fileFullName.Split(@"\".ToCharArray());
 
-                string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
+                string ParentDirectory = System.IO.Path.GetDirectoryName(fileFullName);
                 NFSAttributes ParentAttributes = GetItemAttributes(ParentDirectory);
 
                 //make open here
-                List<nfs_argop4> ops = new List<nfs_argop4>();
-                ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-            _sequenceID.value.value, 12, 0));
+                List<NfsArgop4> ops = new List<NfsArgop4>();
+                ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+            _SequenceID.Value.Value, 12, 0));
                 //dir  herez
-                ops.Add(PutfhStub.generateRequest(new nfs_fh4(ParentAttributes.Handle)));
-                //let's try with sequence 0
-                ops.Add(OpenStub.normalCREATE(PathTree[PathTree.Length - 1], _sequenceID.value.value, _clientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_WRITE));
-                ops.Add(GetfhStub.generateRequest());
+                ops.Add(PutfhStub.GenerateRequest(new NfsFh4(ParentAttributes.Handle)));
+                // NFSv4.1 (RFC 5661): open_owner seqid should be 0 for new sessions
+                ops.Add(OpenStub.NormalCREATE(PathTree[PathTree.Length - 1], 0, _ClientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_WRITE));
+                ops.Add(GetfhStub.GenerateRequest());
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
-                if (compound4res.status == nfsstat4.NFS4_OK)
+                Compound4Res compound4res = SendCompound(ops, "");
+                if (compound4res.Status == Nfsstat4.NFS4_OK)
                 {
                     //open ok
-                    currentState = compound4res.resarray[2].opopen.resok4.stateid;
+                    _CurrentState = compound4res.Resarray[2].Opopen.Resok4.Stateid;
 
-                    _cwf = compound4res.resarray[3].opgetfh.resok4.object1;
+                    _Cwf = compound4res.Resarray[3].Opgetfh.Resok4.Object1;
                 }
                 else
                 {
-                    throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                    throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
                 }
             }
         }
 
-        public int Read(String FileFullName, long Offset, int Count, ref Byte[] Buffer)
+        /// <summary>
+        /// Reads data from a file on the NFS server.
+        /// </summary>
+        /// <param name="fileFullName">The full path of the file to read.</param>
+        /// <param name="offset">The byte offset in the file to start reading from.</param>
+        /// <param name="count">The number of bytes to read.</param>
+        /// <param name="buffer">The buffer to store the read data.</param>
+        /// <returns>The actual number of bytes read.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected, read access is denied, or read fails.</exception>
+        public int Read(String fileFullName, long offset, int count, ref Byte[] buffer)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
             int rCount = 0;
 
-            if (Count == 0)
+            if (count == 0)
                 return 0;
 
-            if (_CurrentItem != FileFullName)
+            if (_CurrentItem != fileFullName)
             {
-                NFSAttributes Attributes = GetItemAttributes(FileFullName);
-                _cwf = new nfs_fh4(Attributes.Handle);
-                _CurrentItem = FileFullName;
+                NFSAttributes Attributes = GetItemAttributes(fileFullName);
+                _Cwf = new NfsFh4(Attributes.Handle);
+                _CurrentItem = fileFullName;
 
-                string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
+                string ParentDirectory = System.IO.Path.GetDirectoryName(fileFullName);
                 NFSAttributes ParentAttributes = GetItemAttributes(ParentDirectory);
 
-                String[] PathTree = FileFullName.Split(@"\".ToCharArray());
+                String[] PathTree = fileFullName.Split(@"\".ToCharArray());
 
                 //make open here
-                List<nfs_argop4> ops = new List<nfs_argop4>();
-                ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-            _sequenceID.value.value, 12, 0));
+                List<NfsArgop4> ops = new List<NfsArgop4>();
+                ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+            _SequenceID.Value.Value, 12, 0));
                 //dir  herez
-                //ops.Add(PutfhStub.generateRequest(_cwd));
-                ops.Add(PutfhStub.generateRequest(new nfs_fh4(ParentAttributes.Handle)));
+                //ops.Add(PutfhStub.GenerateRequest(_cwd));
+                ops.Add(PutfhStub.GenerateRequest(new NfsFh4(ParentAttributes.Handle)));
                 //let's try with sequence 0
-                ops.Add(OpenStub.normalREAD(PathTree[PathTree.Length - 1], 0, _clientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_READ));
+                ops.Add(OpenStub.NormalREAD(PathTree[PathTree.Length - 1], 0, _ClientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_READ));
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
-                if (compound4res.status == nfsstat4.NFS4_OK)
+                Compound4Res compound4res = SendCompound(ops, "");
+                if (compound4res.Status == Nfsstat4.NFS4_OK)
                 {
                     //open ok
-                    currentState = compound4res.resarray[2].opopen.resok4.stateid;
+                    _CurrentState = compound4res.Resarray[2].Opopen.Resok4.Stateid;
                 }
                 else
                 {
-                    throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                    throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
                 }
 
-                //check the acess also
-                if (get_fh_acess(_cwf) % 2 != 1)
+                //check the access also
+                if (GetFileHandleAccess(_Cwf) % 2 != 1)
                 {
-                    //we don't have read acess give error
-                    throw new NFSConnectionException("Sorry no file READ acess !!!");
+                    //we don't have read access give error
+                    throw new NFSConnectionException("Sorry no file READ access !!!");
                 }
             }
 
-            List<nfs_argop4> ops2 = new List<nfs_argop4>();
-            ops2.Add(SequenceStub.generateRequest(false, _sessionid.value,
-        _sequenceID.value.value, 12, 0));
-            ops2.Add(PutfhStub.generateRequest(_cwf));
-            ops2.Add(ReadStub.generateRequest(Count, Offset, currentState));
+            List<NfsArgop4> ops2 = new List<NfsArgop4>();
+            ops2.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+        _SequenceID.Value.Value, 12, 0));
+            ops2.Add(PutfhStub.GenerateRequest(_Cwf));
+            ops2.Add(ReadStub.GenerateRequest(count, offset, _CurrentState));
 
-            COMPOUND4res compound4res2 = sendCompound(ops2, "");
-            if (compound4res2.status == nfsstat4.NFS4_OK)
+            Compound4Res compound4res2 = SendCompound(ops2, "");
+            if (compound4res2.Status == Nfsstat4.NFS4_OK)
             {
                 //read of offset complete
-                rCount = compound4res2.resarray[2].opread.resok4.data.Length;
+                rCount = compound4res2.Resarray[2].Opread.Resok4.Data.Length;
 
-                ///copy the data to the output
-                Array.Copy(compound4res2.resarray[2].opread.resok4.data, Buffer, rCount);
+                //copy the data to the output
+                Array.Copy(compound4res2.Resarray[2].Opread.Resok4.Data, buffer, rCount);
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res2.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res2.Status));
             }
 
             return rCount;
         }
 
-        private void closeFile(nfs_fh4 fh, stateid4 stateid)
+        private void CloseFile(NfsFh4 fh, Stateid4 stateid)
         {
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                    _sequenceID.value.value, 12, 0));
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
 
-            ops.Add(PutfhStub.generateRequest(fh));
-            ops.Add(CloseStub.generateRequest(stateid));
+            ops.Add(PutfhStub.GenerateRequest(fh));
+            ops.Add(CloseStub.GenerateRequest(stateid));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
                 //close file ok
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
-        public void SetFileSize(string FileFullName, long Size)
+        /// <summary>
+        /// Sets the size of a file on the NFS server, truncating or extending it as needed.
+        /// </summary>
+        /// <param name="fileFullName">The full path of the file.</param>
+        /// <param name="size">The new size in bytes.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or the operation fails.</exception>
+        public void SetFileSize(string fileFullName, long size)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            /* NFSAttributes Attributes = GetItemAttributes(FileFullName);
+            NFSAttributes attributes = GetItemAttributes(fileFullName);
+            NfsFh4 fileHandle = new NfsFh4(attributes.Handle);
 
-             SetAttributeArguments dpArgSAttr = new SetAttributeArguments();
+            string parentDirectory = System.IO.Path.GetDirectoryName(fileFullName);
+            NFSAttributes parentAttributes = GetItemAttributes(parentDirectory);
+            String[] pathTree = fileFullName.Split(@"\".ToCharArray());
 
-             dpArgSAttr.Handle = new NFSHandle(Attributes.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-             dpArgSAttr.Attributes = new MakeAttributes();
-             dpArgSAttr.Attributes.LastAccessedTime = new NFSTimeValue();
-             dpArgSAttr.Attributes.ModifiedTime = new NFSTimeValue();
-             dpArgSAttr.Attributes.Mode = Attributes.Mode;
-             dpArgSAttr.Attributes.UserID = -1;
-             dpArgSAttr.Attributes.GroupID = -1;
-             dpArgSAttr.Attributes.Size = Size;
-             dpArgSAttr.GuardCreateTime = new NFSTimeValue();
-             dpArgSAttr.GuardCheck = false;
+            // Open the file for writing to get a stateid
+            List<NfsArgop4> openOps = new List<NfsArgop4>();
+            openOps.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            openOps.Add(PutfhStub.GenerateRequest(new NfsFh4(parentAttributes.Handle)));
+            // NFSv4.1 (RFC 5661): open_owner seqid should be 0 for new sessions
+            openOps.Add(OpenStub.NormalOPENonly(pathTree[pathTree.Length - 1], 0, _ClientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_WRITE));
+            openOps.Add(GetfhStub.GenerateRequest());
 
-             ResultObject<SetAttributeAccessOK, SetAttributeAccessFAIL> pAttrStat =
-                 _ProtocolV3.NFSPROC3_SETATTR(dpArgSAttr);
+            Compound4Res openRes = SendCompound(openOps, "");
+            if (openRes.Status != Nfsstat4.NFS4_OK)
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(openRes.Status));
+            }
 
-             if (pAttrStat == null || pAttrStat.Status != NFSStats.NFS_OK)
-             {
-                 if (pAttrStat == null)
-                 { throw new NFSGeneralException("NFSPROC3_SETATTR: failure"); }
+            Stateid4 openStateid = openRes.Resarray[2].Opopen.Resok4.Stateid;
+            NfsFh4 openedFileHandle = openRes.Resarray[3].Opgetfh.Resok4.Object1;
 
-                 ExceptionHelpers.ThrowException(pAttrStat.Status);
-             }*/
+            // Set the file size
+            List<NfsArgop4> setAttrOps = new List<NfsArgop4>();
+            setAttrOps.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            setAttrOps.Add(PutfhStub.GenerateRequest(openedFileHandle));
+            setAttrOps.Add(SetAttrStub.GenerateSetSizeRequest(openStateid, size));
+
+            Compound4Res setAttrRes = SendCompound(setAttrOps, "");
+
+            // Close the file
+            CloseFile(openedFileHandle, openStateid);
+
+            if (setAttrRes.Status != Nfsstat4.NFS4_OK)
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(setAttrRes.Status));
+            }
+
+            // Invalidate cache entry if caching is enabled
+            if (_UseFHCache && _FileHandleCache != null)
+            {
+                _FileHandleCache.Invalidate(fileFullName);
+            }
+
+            // Invalidate current file state so next Write will re-open the file
+            if (_CurrentItem == fileFullName)
+            {
+                _CurrentItem = String.Empty;
+                _CurrentState = null;
+                _Cwf = null;
+            }
         }
 
-        public int Write(String FileFullName, long Offset, int Count, Byte[] Buffer)
+        /// <summary>
+        /// Writes data to a file on the NFS server.
+        /// </summary>
+        /// <param name="fileFullName">The full path of the file to write to.</param>
+        /// <param name="offset">The byte offset in the file to start writing at.</param>
+        /// <param name="count">The number of bytes to write.</param>
+        /// <param name="buffer">The buffer containing the data to write.</param>
+        /// <returns>The actual number of bytes written.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or write fails.</exception>
+        public int Write(String fileFullName, long offset, int count, Byte[] buffer)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
             int rCount = 0;
-            //nfs_fh4 current = _cwd;
+            //NfsFh4 current = _cwd;
 
-            if (_CurrentItem != FileFullName)
+            if (_CurrentItem != fileFullName)
             {
-                _CurrentItem = FileFullName;
+                _CurrentItem = fileFullName;
 
-                String[] PathTree = FileFullName.Split(@"\".ToCharArray());
+                String[] PathTree = fileFullName.Split(@"\".ToCharArray());
 
-                string ParentDirectory = System.IO.Path.GetDirectoryName(FileFullName);
+                string ParentDirectory = System.IO.Path.GetDirectoryName(fileFullName);
                 NFSAttributes ParentAttributes = GetItemAttributes(ParentDirectory);
 
                 //make open here
-                List<nfs_argop4> ops = new List<nfs_argop4>();
-                ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-            _sequenceID.value.value, 12, 0));
+                List<NfsArgop4> ops = new List<NfsArgop4>();
+                ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+            _SequenceID.Value.Value, 12, 0));
                 //dir  herez
-                ops.Add(PutfhStub.generateRequest(new nfs_fh4(ParentAttributes.Handle)));
-                //let's try with sequence 0
-                ops.Add(OpenStub.normalOPENonly(PathTree[PathTree.Length - 1], _sequenceID.value.value, _clientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_WRITE));
-                ops.Add(GetfhStub.generateRequest());
+                ops.Add(PutfhStub.GenerateRequest(new NfsFh4(ParentAttributes.Handle)));
+                // NFSv4.1 (RFC 5661): open_owner seqid should be 0 for new sessions
+                ops.Add(OpenStub.NormalOPENonly(PathTree[PathTree.Length - 1], 0, _ClientIdByServer, NFSv4Protocol.OPEN4_SHARE_ACCESS_WRITE));
+                ops.Add(GetfhStub.GenerateRequest());
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
-                if (compound4res.status == nfsstat4.NFS4_OK)
+                Compound4Res compound4res = SendCompound(ops, "");
+                if (compound4res.Status == Nfsstat4.NFS4_OK)
                 {
                     //open ok
-                    currentState = compound4res.resarray[2].opopen.resok4.stateid;
+                    _CurrentState = compound4res.Resarray[2].Opopen.Resok4.Stateid;
 
-                    _cwf = compound4res.resarray[3].opgetfh.resok4.object1;
+                    _Cwf = compound4res.Resarray[3].Opgetfh.Resok4.Object1;
                 }
                 else
                 {
-                    throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                    throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
                 }
             }
 
-            List<nfs_argop4> ops2 = new List<nfs_argop4>();
-            ops2.Add(SequenceStub.generateRequest(false, _sessionid.value,
-        _sequenceID.value.value, 12, 0));
-            ops2.Add(PutfhStub.generateRequest(_cwf));
+            List<NfsArgop4> ops2 = new List<NfsArgop4>();
+            ops2.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+        _SequenceID.Value.Value, 12, 0));
+            ops2.Add(PutfhStub.GenerateRequest(_Cwf));
 
             //make better buffer
-            Byte[] Buffer2 = new Byte[Count];
-            Array.Copy(Buffer, Buffer2, Count);
-            ops2.Add(WriteStub.generateRequest(Offset, Buffer2, currentState));
+            Byte[] Buffer2 = new Byte[count];
+            Array.Copy(buffer, Buffer2, count);
+            ops2.Add(WriteStub.GenerateRequest(offset, Buffer2, _CurrentState));
 
-            COMPOUND4res compound4res2 = sendCompound(ops2, "");
-            if (compound4res2.status == nfsstat4.NFS4_OK)
+            Compound4Res compound4res2 = SendCompound(ops2, "");
+            if (compound4res2.Status == Nfsstat4.NFS4_OK)
             {
                 //write of offset complete
-                rCount = compound4res2.resarray[2].opwrite.resok4.count.value.value;
+                rCount = compound4res2.Resarray[2].Opwrite.Resok4.Count.Value.Value;
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res2.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res2.Status));
             }
 
             return rCount;
         }
 
-        public void Move(string OldDirectoryFullName, string OldFileName, string NewDirectoryFullName, string NewFileName)
+        /// <summary>
+        /// Moves or renames a file or directory on the NFS server.
+        /// </summary>
+        /// <param name="oldDirectoryFullName">The full path of the source directory.</param>
+        /// <param name="oldFileName">The name of the file or directory to move/rename.</param>
+        /// <param name="newDirectoryFullName">The full path of the destination directory.</param>
+        /// <param name="newFileName">The new name for the file or directory.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or the operation fails.</exception>
+        public void Move(string oldDirectoryFullName, string oldFileName, string newDirectoryFullName, string newFileName)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            /* NFSAttributes OldDirectory = GetItemAttributes(OldDirectoryFullName);
-             NFSAttributes NewDirectory = GetItemAttributes(NewDirectoryFullName);
+            NFSAttributes oldDirectory = GetItemAttributes(oldDirectoryFullName);
+            NFSAttributes newDirectory = GetItemAttributes(newDirectoryFullName);
 
-             RenameArguments dpArgRename = new RenameArguments();
-             dpArgRename.From = new ItemOperationArguments();
-             dpArgRename.From.Directory = new NFSHandle(OldDirectory.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-             dpArgRename.From.Name = new Name(OldFileName);
-             dpArgRename.To = new ItemOperationArguments();
-             dpArgRename.To.Directory = new NFSHandle(NewDirectory.Handle, V3.RPC.NFSv3Protocol.NFS_V3);
-             dpArgRename.To.Name = new Name(NewFileName);
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-             ResultObject<RenameAccessOK, RenameAccessFAIL> pRenameRes =
-                 _ProtocolV3.NFSPROC3_RENAME(dpArgRename);
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(oldDirectory.Handle)));
+            ops.Add(SavefhStub.GenerateRequest());
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(newDirectory.Handle)));
+            ops.Add(RenameStub.GenerateRequest(oldFileName, newFileName));
 
-             if (pRenameRes == null || pRenameRes.Status != NFSStats.NFS_OK)
-             {
-                 if (pRenameRes == null)
-                 { throw new NFSGeneralException("NFSPROC3_WRITE: failure"); }
+            Compound4Res compound4res = SendCompound(ops, "");
 
-                 ExceptionHelpers.ThrowException(pRenameRes.Status);
-             }*/
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
+            {
+                // Rename successful
+                // Invalidate cache entries if caching is enabled
+                if (_UseFHCache && _FileHandleCache != null)
+                {
+                    string oldPath = System.IO.Path.Combine(oldDirectoryFullName, oldFileName);
+                    string newPath = System.IO.Path.Combine(newDirectoryFullName, newFileName);
+                    _FileHandleCache.Invalidate(oldPath);
+                    _FileHandleCache.Invalidate(newPath);
+                }
+            }
+            else
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
+            }
         }
 
-        //TODO check how much is this used !!!
-        public bool IsDirectory(string DirectoryFullName)
+        /// <summary>
+        /// Determines whether the specified path is a directory.
+        /// </summary>
+        /// <param name="directoryFullName">The full path to check.</param>
+        /// <returns>True if the path is a directory; otherwise, false.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected.</exception>
+        public bool IsDirectory(string directoryFullName)
         {
             if (_ProtocolV4 == null)
             { throw new NFSConnectionException("NFS Client not connected!"); }
 
-            NFSAttributes Attributes = GetItemAttributes(DirectoryFullName);
+            NFSAttributes Attributes = GetItemAttributes(directoryFullName);
 
             return (Attributes != null && Attributes.NFSType == NFSItemTypes.NFDIR);
         }
 
+        /// <summary>
+        /// Completes any pending I/O operations and closes the currently open file.
+        /// </summary>
         public void CompleteIO()
         {
-            if (_cwf != null || _CurrentItem != string.Empty)
+            if (_Cwf != null || _CurrentItem != string.Empty)
             {
-                closeFile(_cwf, currentState);
+                CloseFile(_Cwf, _CurrentState);
                 _CurrentItem = string.Empty;
-                _cwf = null;
+                _Cwf = null;
             }
         }
 
         //part of new nfsv4.1 functions
-        private void mount()
+        private void Mount()
         {
             //tell own id and ask server for id he want's we to use it
-            exchange_ids();
+            ExchangeIds();
             //create session!
-            create_session();
+            CreateSession();
 
-            //we created session ok  now let's start the timer
-            timer = new Timer(10000);
-            timer.Elapsed += new ElapsedEventHandler(TimerCallback);
-            timer.Enabled = true; // Enable it
+            //we created session ok  now let's start the _Timer
+            _Timer = new Timer(10000);
+            _Timer.Elapsed += new ElapsedEventHandler(TimerCallback);
+            _Timer.Enabled = true; // Enable it
         }
 
-        private void reclaim_complete()
+        private void ReclaimComplete()
         {
-            List<nfs_argop4> ops = new List<nfs_argop4>();
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-        _sequenceID.value.value, 12, 0));
-            ops.Add(ReclaimCompleteStub.generateRequest(false));
+            List<NfsArgop4> ops = new List<NfsArgop4>();
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+        _SequenceID.Value.Value, 12, 0));
+            ops.Add(ReclaimCompleteStub.GenerateRequest(false));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            Compound4Res compound4res = SendCompound(ops, "");
+            if (compound4res.Status != Nfsstat4.NFS4_OK)
             {
-                //reclaim complete
-            }
-            else
-            {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
-        private void getRootFh()
+        private void GetRootFh()
         {
             List<int> attrs = new List<int>(1);
             attrs.Add(NFSv4Protocol.FATTR4_LEASE_TIME);
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                    _sequenceID.value.value, 0, 0));
-            ops.Add(PutrootfhStub.generateRequest());
-            ops.Add(GetfhStub.generateRequest());
-            ops.Add(GetattrStub.generateRequest(attrs));
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 0, 0));
+            ops.Add(PutrootfhStub.GenerateRequest());
+            ops.Add(GetfhStub.GenerateRequest());
+            ops.Add(GetattrStub.GenerateRequest(attrs));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
-                _rootFH = compound4res.resarray[2].opgetfh.resok4.object1;
+                _RootFH = compound4res.Resarray[2].Opgetfh.Resok4.Object1;
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
-        public String toHexString(byte[] data)
+        /// <summary>
+        /// Converts a byte array to a hexadecimal string representation.
+        /// </summary>
+        /// <param name="data">The byte array to convert.</param>
+        /// <returns>A string containing the hexadecimal representation of the bytes.</returns>
+        public String ToHexString(byte[] data)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -842,12 +1022,18 @@ namespace NFSLibrary.Protocols.V4
             return sb.ToString();
         }
 
-        public int get_fh_acess(nfs_fh4 file_handle)
+        /// <summary>
+        /// Gets the access permissions for a file handle.
+        /// </summary>
+        /// <param name="file_handle">The file handle to check.</param>
+        /// <returns>An integer representing access permissions (bitfield).</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the access check fails.</exception>
+        public int GetFileHandleAccess(NfsFh4 file_handle)
         {
-            uint32_t access = new uint32_t(0);
+            Uint32T access = new Uint32T(0);
 
             //all acsses possible
-            access.value = access.value +
+            access.Value = access.Value +
             NFSv4Protocol.ACCESS4_READ +
             NFSv4Protocol.ACCESS4_LOOKUP +
             NFSv4Protocol.ACCESS4_MODIFY +
@@ -855,28 +1041,28 @@ namespace NFSLibrary.Protocols.V4
             NFSv4Protocol.ACCESS4_DELETE; //+
             //NFSv4Protocol.ACCESS4_EXECUTE;
 
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-                    _sequenceID.value.value, 12, 0));
-            ops.Add(PutfhStub.generateRequest(file_handle));
-            ops.Add(AcessStub.generateRequest(access));
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(file_handle));
+            ops.Add(AcessStub.GenerateRequest(access));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
-                return compound4res.resarray[2].opaccess.resok4.access.value;
+                return compound4res.Resarray[2].Opaccess.Resok4.Access.Value;
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
-        private void exchange_ids()
+        private void ExchangeIds()
         {
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
             String domain = "localhost";
             String name = "NFS Client ";
@@ -884,169 +1070,369 @@ namespace NFSLibrary.Protocols.V4
             //String guid = System.Environment.MachineName + "@" + domain;
             String guid = System.Guid.NewGuid().ToString();
 
-            ops.Add(ExchengeIDStub.normal(domain, name, guid, NFSv4Protocol.EXCHGID4_FLAG_SUPP_MOVED_REFER + NFSv4Protocol.EXCHGID4_FLAG_USE_NON_PNFS, state_protect_how4.SP4_NONE));
+            ops.Add(ExchengeIDStub.Normal(domain, name, guid, NFSv4Protocol.EXCHGID4_FLAG_SUPP_MOVED_REFER + NFSv4Protocol.EXCHGID4_FLAG_USE_NON_PNFS, StateProtectHow4.SP4_NONE));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            Compound4Res compound4res = SendCompound(ops, "");
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
-                /*if (compound4res.resarray[0].opexchange_id.eir_resok4.eir_server_impl_id.Length > 0)
+                /*if (compound4res.Resarray[0].Opexchange_id.Eir_resok4.eir_server_impl_id.Length > 0)
                 {
-                    string serverId = System.Text.Encoding.UTF8.GetString(compound4res.resarray[0].opexchange_id.eir_resok4.eir_server_impl_id[0].nii_name.value.value);
+                    string serverId = System.Text.Encoding.UTF8.GetString(compound4res.Resarray[0].Opexchange_id.Eir_resok4.eir_server_impl_id[0].nii_name.Value.Value);
                 }
                 else
                 {
-                    if (compound4res.resarray[0].opexchange_id.eir_resok4.eir_server_owner.so_major_id.Length > 0)
+                    if (compound4res.Resarray[0].Opexchange_id.Eir_resok4.eir_server_owner.so_major_id.Length > 0)
                     {
-                        string serverId = System.Text.Encoding.UTF8.GetString(compound4res.resarray[0].opexchange_id.eir_resok4.eir_server_owner.so_major_id);
+                        string serverId = System.Text.Encoding.UTF8.GetString(compound4res.Resarray[0].Opexchange_id.Eir_resok4.eir_server_owner.so_major_id);
                         //throw new NFSConnectionException("Server name: ="+serverId);
                     }
                 }*/
 
-                _clientIdByServer = compound4res.resarray[0].opexchange_id.eir_resok4.eir_clientid;
-                _sequenceID = compound4res.resarray[0].opexchange_id.eir_resok4.eir_sequenceid;
+                _ClientIdByServer = compound4res.Resarray[0].Opexchange_id.Eir_resok4.Eir_clientid;
+                _SequenceID = compound4res.Resarray[0].Opexchange_id.Eir_resok4.Eir_sequenceid;
             }
-            else { throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status)); }
+            else { throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status)); }
         }
 
-        private void create_session()
+        private void CreateSession()
         {
-            List<nfs_argop4> ops = new List<nfs_argop4>();
+            List<NfsArgop4> ops = new List<NfsArgop4>();
 
-            ops.Add(CreateSessionStub.standard(_clientIdByServer, _sequenceID));
+            ops.Add(CreateSessionStub.Standard(_ClientIdByServer, _SequenceID));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
+            Compound4Res compound4res = SendCompound(ops, "");
 
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
-                _sessionid = compound4res.resarray[0].opcreate_session.csr_resok4.csr_sessionid;
-                // FIXME: no idea why, but other wise server reply MISORDER
-                _sequenceID.value.value = 0;
+                _SessionId = compound4res.Resarray[0].Opcreate_session.Csr_resok4.Csr_sessionid;
+                // NFSv4.1 requires sequence ID to start at 0 after session creation (RFC 5661 Section 18.36)
+                _SequenceID.Value.Value = 0;
 
-                maxTRrate = compound4res.resarray[0].opcreate_session.csr_resok4.csr_fore_chan_attrs.ca_maxrequestsize.value.value;
-                maxRXrate = compound4res.resarray[0].opcreate_session.csr_resok4.csr_fore_chan_attrs.ca_maxresponsesize.value.value;
+                _MaxTRrate = compound4res.Resarray[0].Opcreate_session.Csr_resok4.Csr_fore_chan_attrs.Ca_maxrequestsize.Value.Value;
+                _MaxRXrate = compound4res.Resarray[0].Opcreate_session.Csr_resok4.Csr_fore_chan_attrs.Ca_maxresponsesize.Value.Value;
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
         // a very nice to send a client null procedure
-        private void sendNullPRocedure()
+        private void SendNullProcedure()
         {
             _ProtocolV4.NFSPROC4_NULL_4();
         }
 
-        private void destroy_session()
+        private void DestroySession()
         {
-            if (_sessionid != null)
+            if (_SessionId != null)
             {
-                List<nfs_argop4> ops = new List<nfs_argop4>();
+                List<NfsArgop4> ops = new List<NfsArgop4>();
 
-                ops.Add(DestroySessionStub.standard(_sessionid));
+                ops.Add(DestroySessionStub.Standard(_SessionId));
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
-                _sessionid = null;
+                Compound4Res compound4res = SendCompound(ops, "");
+                _SessionId = null;
             }
         }
 
-        private void destroy_clientId()
+        private void DestroyClientId()
         {
-            if (_clientIdByServer != null)
+            if (_ClientIdByServer != null)
             {
-                List<nfs_argop4> ops = new List<nfs_argop4>();
+                List<NfsArgop4> ops = new List<NfsArgop4>();
 
-                ops.Add(DestroyClientIdStub.standard(_clientIdByServer));
+                ops.Add(DestroyClientIdStub.Standard(_ClientIdByServer));
 
-                COMPOUND4res compound4res = sendCompound(ops, "");
-                _clientIdByServer = null;
+                Compound4Res compound4res = SendCompound(ops, "");
+                _ClientIdByServer = null;
             }
         }
 
-        private COMPOUND4res sendCompound(List<nfs_argop4> ops, String tag)
+        private Compound4Res SendCompound(List<NfsArgop4> ops, String tag)
         {
-            COMPOUND4res compound4res;
-            COMPOUND4args compound4args = generateCompound(tag, ops);
-            /*
-             * wail if server is in the grace period.
-             *
-             * TODO: escape if it takes too long
-             */
+            Compound4Res compound4res;
+            Compound4Args compound4args = generateCompound(tag, ops);
+
+            // Wait if server is in the grace period (retry on NFS4ERR_GRACE or NFS4ERR_DELAY)
+            // Grace period is typically 10-90 seconds after server restart, depending on server config.
+            // We retry for up to 100 seconds which should cover most grace periods.
+            int retryCount = 0;
+            const int maxRetries = 100; // ~100 seconds max wait for grace period
             do
             {
                 compound4res = _ProtocolV4.NFSPROC4_COMPOUND_4(compound4args);
-                processSequence(compound4res, compound4args);
-            } while (compound4res.status == nfsstat4.NFS4ERR_GRACE || compound4res.status == nfsstat4.NFS4ERR_DELAY);
+                ProcessSequence(compound4res, compound4args);
+
+                if (compound4res.Status == Nfsstat4.NFS4ERR_GRACE || compound4res.Status == Nfsstat4.NFS4ERR_DELAY)
+                {
+                    if (++retryCount > maxRetries)
+                    {
+                        throw new NFSConnectionException($"Server grace period exceeded maximum wait time ({maxRetries} retries). Status: {compound4res.Status}");
+                    }
+                    System.Threading.Thread.Sleep(1000); // Wait 1 second before retry
+                }
+            } while (compound4res.Status == Nfsstat4.NFS4ERR_GRACE || compound4res.Status == Nfsstat4.NFS4ERR_DELAY);
 
             return compound4res;
         }
 
-        public static COMPOUND4args generateCompound(String tag,
-        List<nfs_argop4> opList)
+        /// <summary>
+        /// Generates a COMPOUND4 arguments structure for NFSv4.1 operations.
+        /// </summary>
+        /// <param name="tag">A tag string to identify the compound operation.</param>
+        /// <param name="opList">The list of NFS operations to include in the compound request.</param>
+        /// <returns>A Compound4Args structure ready to send to the server.</returns>
+        public static Compound4Args generateCompound(String tag,
+        List<NfsArgop4> opList)
         {
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
             byte[] bytes = encoding.GetBytes(tag);
 
-            COMPOUND4args compound4args = new COMPOUND4args();
-            compound4args.tag = new utf8str_cs(new utf8string(bytes));
-            compound4args.minorversion = new uint32_t(1);
+            Compound4Args compound4args = new Compound4Args();
+            compound4args.Tag = new Utf8strCs(new Utf8string(bytes));
+            compound4args.Minorversion = new Uint32T(1);
 
-            //compound4args.argarray = opList.ToArray(new nfs_argop4[opList.Count]);
-            compound4args.argarray = opList.ToArray();
+            //compound4args.Argarray = opList.ToArray(new NfsArgop4[opList.Count]);
+            compound4args.Argarray = opList.ToArray();
 
             return compound4args;
         }
 
-        public void processSequence(COMPOUND4res compound4res, COMPOUND4args compound4args)
+        /// <summary>
+        /// Processes the sequence operation response to update sequence IDs and track connection health.
+        /// </summary>
+        /// <param name="compound4res">The compound response from the server.</param>
+        /// <param name="compound4args">The compound arguments sent to the server.</param>
+        public void ProcessSequence(Compound4Res compound4res, Compound4Args compound4args)
         {
-            if (compound4res.resarray != null && compound4res.resarray.Length != 0 && compound4res.resarray[0].resop == nfs_opnum4.OP_SEQUENCE &&
-                    compound4res.resarray[0].opsequence.sr_status == nfsstat4.NFS4_OK)
+            if (compound4res.Resarray != null && compound4res.Resarray.Length != 0 && compound4res.Resarray[0].Resop == NfsOpnum4.OP_SEQUENCE &&
+                    compound4res.Resarray[0].Opsequence.SrStatus == Nfsstat4.NFS4_OK)
             {
-                _lastUpdate = GetGMTInMS();
-                ++_sequenceID.value.value;
-                //let's try this also
-                if (compound4res.status == nfsstat4.NFS4ERR_DELAY)
-                    compound4args.argarray[0].opsequence.sa_sequenceid.value.value++;
+                _LastUpdate = GetGMTInMS();
+                ++_SequenceID.Value.Value;
+                // Increment the compound's sequence ID for retry on DELAY or GRACE
+                // The server consumed the sequence ID, so we need to use the next one
+                if (compound4res.Status == Nfsstat4.NFS4ERR_DELAY || compound4res.Status == Nfsstat4.NFS4ERR_GRACE)
+                    compound4args.Argarray[0].Opsequence.SaSequenceid.Value.Value++;
             }
         }
 
-        private void send_only_sequence()
+        private void SendOnlySequence()
         {
-            List<nfs_argop4> ops = new List<nfs_argop4>();
-            ops.Add(SequenceStub.generateRequest(false, _sessionid.value,
-        _sequenceID.value.value, 12, 0));
+            List<NfsArgop4> ops = new List<NfsArgop4>();
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+        _SequenceID.Value.Value, 12, 0));
 
-            COMPOUND4res compound4res = sendCompound(ops, "");
-            if (compound4res.status == nfsstat4.NFS4_OK)
+            Compound4Res compound4res = SendCompound(ops, "");
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
             {
                 //reclaim complete
             }
             else
             {
-                throw new NFSConnectionException(nfsstat4.getErrorString(compound4res.status));
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
             }
         }
 
         private void TimerCallback(object sender, ElapsedEventArgs e)
         {
-            if (needUpdate())
-                send_only_sequence();
+            if (NeedUpdate())
+                SendOnlySequence();
         }
 
+        /// <summary>
+        /// Gets the current GMT time in milliseconds since the Unix epoch (January 1, 1970).
+        /// </summary>
+        /// <returns>The number of milliseconds since the Unix epoch.</returns>
         public static long GetGMTInMS()
         {
-            var unixTime = DateTime.Now.ToUniversalTime() -
+            TimeSpan unixTime = DateTime.Now.ToUniversalTime() -
                 new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             return (long)unixTime.TotalMilliseconds;
         }
 
-        private bool needUpdate()
+        /// <summary>
+        /// Determines if a sequence update is needed to maintain the session.
+        /// </summary>
+        /// <returns>True if more than 59 seconds have passed since the last update; otherwise, false.</returns>
+        private bool NeedUpdate()
         {
             // 60 seconds
-            return (GetGMTInMS() - _lastUpdate) > 59000;
+            return (GetGMTInMS() - _LastUpdate) > 59000;
+        }
+
+        /// <summary>
+        /// Creates a symbolic link on the NFS server.
+        /// </summary>
+        /// <param name="linkPath">The path where the symbolic link will be created.</param>
+        /// <param name="targetPath">The path that the symbolic link will point to.</param>
+        /// <param name="mode">The permissions for the symbolic link.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or creation fails.</exception>
+        public void CreateSymbolicLink(string linkPath, string targetPath, NFSPermission mode)
+        {
+            if (_ProtocolV4 == null)
+            { throw new NFSConnectionException("NFS Client not connected!"); }
+
+            int user = 7;
+            int group = 7;
+            int other = 7;
+
+            if (mode != null)
+            {
+                user = mode.UserAccess;
+                group = mode.GroupAccess;
+                other = mode.OtherAccess;
+            }
+
+            string parentDirectory = System.IO.Path.GetDirectoryName(linkPath);
+            string linkName = System.IO.Path.GetFileName(linkPath);
+            NFSAttributes parentItemAttributes = GetItemAttributes(parentDirectory);
+
+            // Create file attributes
+            Fattr4 attr = new Fattr4();
+            attr.Attrmask = OpenStub.OpenFattrBitmap();
+            attr.Attr_vals = new Attrlist4();
+            attr.Attr_vals.Value = OpenStub.OpenAttrs(user, group, other, 0);
+
+            List<NfsArgop4> ops = new List<NfsArgop4>();
+
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(parentItemAttributes.Handle)));
+            ops.Add(SymlinkStub.GenerateRequest(linkName, targetPath, attr));
+
+            Compound4Res compound4res = SendCompound(ops, "");
+
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
+            {
+                // Symbolic link created successfully
+            }
+            else
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
+            }
+        }
+
+        /// <summary>
+        /// Creates a hard link on the NFS server.
+        /// </summary>
+        /// <param name="linkPath">The path where the hard link will be created.</param>
+        /// <param name="targetPath">The path of the existing file to link to.</param>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or creation fails.</exception>
+        /// <exception cref="NFSGeneralException">Thrown when the target file does not exist.</exception>
+        public void CreateHardLink(string linkPath, string targetPath)
+        {
+            if (_ProtocolV4 == null)
+            { throw new NFSConnectionException("NFS Client not connected!"); }
+
+            // Get the target file's attributes (and validate it exists)
+            NFSAttributes targetAttributes = GetItemAttributes(targetPath);
+            if (targetAttributes == null)
+            {
+                throw new NFSGeneralException("Target file does not exist: " + targetPath);
+            }
+
+            // Get the parent directory for the new link
+            string linkParentDirectory = System.IO.Path.GetDirectoryName(linkPath);
+            string linkName = System.IO.Path.GetFileName(linkPath);
+            NFSAttributes linkParentAttributes = GetItemAttributes(linkParentDirectory);
+
+            List<NfsArgop4> ops = new List<NfsArgop4>();
+
+            // Build compound: SEQUENCE -> PUTFH(target) -> SAVEFH -> PUTFH(linkParent) -> LINK(linkName)
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(targetAttributes.Handle)));
+            ops.Add(SavefhStub.GenerateRequest());
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(linkParentAttributes.Handle)));
+            ops.Add(LinkStub.GenerateRequest(linkName));
+
+            Compound4Res compound4res = SendCompound(ops, "");
+
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
+            {
+                // Hard link created successfully
+            }
+            else
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
+            }
+        }
+
+        /// <summary>
+        /// Reads the target path of a symbolic link.
+        /// </summary>
+        /// <param name="linkPath">The path of the symbolic link to read.</param>
+        /// <returns>The target path that the symbolic link points to.</returns>
+        /// <exception cref="NFSConnectionException">Thrown when the NFS client is not connected or the operation fails.</exception>
+        /// <exception cref="NFSGeneralException">Thrown when the symbolic link does not exist.</exception>
+        public string ReadSymbolicLink(string linkPath)
+        {
+            if (_ProtocolV4 == null)
+            { throw new NFSConnectionException("NFS Client not connected!"); }
+
+            NFSAttributes linkAttributes = GetItemAttributes(linkPath);
+            if (linkAttributes == null)
+            {
+                throw new NFSGeneralException("Symbolic link does not exist: " + linkPath);
+            }
+
+            List<NfsArgop4> ops = new List<NfsArgop4>();
+
+            ops.Add(SequenceStub.GenerateRequest(false, _SessionId.Value,
+                    _SequenceID.Value.Value, 12, 0));
+            ops.Add(PutfhStub.GenerateRequest(new NfsFh4(linkAttributes.Handle)));
+            ops.Add(ReadLinkStub.GenerateRequest());
+
+            Compound4Res compound4res = SendCompound(ops, "");
+
+            if (compound4res.Status == Nfsstat4.NFS4_OK)
+            {
+                // Extract the link target from the response
+                // Response array: [0]=SEQUENCE, [1]=PUTFH, [2]=READLINK
+                Readlink4Resok readlinkResult = compound4res.Resarray[2].Opreadlink.Resok4;
+                byte[] linkData = readlinkResult.Link.Value.Value.Value;
+                return System.Text.Encoding.UTF8.GetString(linkData);
+            }
+            else
+            {
+                throw new NFSConnectionException(Nfsstat4.getErrorString(compound4res.Status));
+            }
         }
 
         #endregion Public Methods
+
+        #region IDisposable
+
+        /// <summary>
+        /// Releases all resources used by the NFSv4 instance.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_Disposed)
+                return;
+
+            if (disposing)
+            {
+                Disconnect();
+                _FileHandleCache?.Dispose();
+            }
+
+            _Disposed = true;
+        }
+
+        #endregion IDisposable
     }
 }

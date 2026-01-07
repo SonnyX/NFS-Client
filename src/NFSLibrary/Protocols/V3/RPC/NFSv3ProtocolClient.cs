@@ -4,128 +4,99 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-using System.Net;
-
-/**
- * The class <code>NFSv3ProtocolClient</code> implements the client stub proxy
- * for the NFS_PROGRAM remote program. It provides method stubs
- * which, when called, in turn call the appropriate remote method (procedure).
- */
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+    using System.Net;
+
+    /// <summary>
+    /// Represents the client stub proxy for NFS v3 protocol operations.
+    /// </summary>
     public class NFSv3ProtocolClient : OncRpcClientStub
     {
-        /**
-         * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv3ProtocolClient(IPAddress host, int protocol)
             : base(host, NFSv3Protocol.NFS_PROGRAM, 3, 0, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv3ProtocolClient(IPAddress host, int protocol, bool useSecurePort)
             : base(host, NFSv3Protocol.NFS_PROGRAM, 3, 0, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv3ProtocolClient(IPAddress host, int port, int protocol)
             : base(host, NFSv3Protocol.NFS_PROGRAM, 3, port, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param client ONC/RPC client connection object implementing a particular
-         *   protocol.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="client">The ONC/RPC client connection object.</param>
         public NFSv3ProtocolClient(OncRpcClient client)
             : base(client)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv3ProtocolClient(IPAddress host, int program, int version, int protocol)
             : base(host, program, version, 0, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv3ProtocolClient(IPAddress host, int program, int version, int port, int protocol)
             : base(host, program, version, port, protocol, true)
         {
         }
 
-        /**
-        * Constructs a <code>NFSv3ProtocolClient</code> client stub proxy object
-        * from which the NFS_PROGRAM remote program can be accessed.
-        * @param host Internet address of host where to contact the remote program.
-        * @param program Remote program number.
-        * @param version Remote program version number.
-        * @param port Port number at host where the remote program can be reached.
-        * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-        *   used for ONC/RPC calls.
-        * @throws OncRpcException if an ONC/RPC error occurs.
-        * @throws IOException if an I/O error occurs.
-        */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv3ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv3ProtocolClient(IPAddress host, int program, int version, int port, int protocol, bool useSecurePort)
             : base(host, program, version, port, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Call remote procedure NFSPROC3_NULL_3.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_NULL procedure for testing server availability.
+        /// </summary>
         public void NFSPROC3_NULL()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -133,14 +104,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             client.call(NFSv3Protocol.NFSPROC3_NULL, NFSv3Protocol.NFS_V3, args_, result_);
         }
 
-        /**
-         * Call remote procedure NFSPROC3_GETATTR_3.
-         * @param arg1 parameter (of type GETATTR3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type GETATTR3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_GETATTR procedure to get file attributes.
+        /// </summary>
+        /// <param name="arg1">The get attribute arguments containing the file handle.</param>
+        /// <returns>The result containing file attributes.</returns>
         public ResultObject<GetAttributeAccessOK, GetAttributeAccessOK> NFSPROC3_GETATTR(GetAttributeArguments arg1)
         {
             ResultObject<GetAttributeAccessOK, GetAttributeAccessOK> result_ =
@@ -151,14 +119,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_SETATTR_3.
-         * @param arg1 parameter (of type SETATTR3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type SETATTR3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_SETATTR procedure to set file attributes.
+        /// </summary>
+        /// <param name="arg1">The set attribute arguments containing the file handle and new attributes.</param>
+        /// <returns>The result of the set attribute operation.</returns>
         public ResultObject<SetAttributeAccessOK, SetAttributeAccessFAIL> NFSPROC3_SETATTR(SetAttributeArguments arg1)
         {
             ResultObject<SetAttributeAccessOK, SetAttributeAccessFAIL> result_ =
@@ -169,14 +134,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_LOOKUP_3.
-         * @param arg1 parameter (of type LOOKUP3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type LOOKUP3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_LOOKUP procedure to look up a file name.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The result containing the file handle if found.</returns>
         public ResultObject<ItemOperationAccessResultOK, ItemOperationAccessResultFAIL> NFSPROC3_LOOKUP(ItemOperationArguments arg1)
         {
             ResultObject<ItemOperationAccessResultOK, ItemOperationAccessResultFAIL> result_ =
@@ -187,14 +149,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_ACCESS_3.
-         * @param arg1 parameter (of type ACCESS3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type ACCESS3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_ACCESS procedure to check access permissions.
+        /// </summary>
+        /// <param name="arg1">The access arguments containing the file handle and access flags to check.</param>
+        /// <returns>The result containing the access permissions.</returns>
         public ResultObject<AccessAccessOK, AccessAccessFAIL> NFSPROC3_ACCESS(AccessArguments arg1)
         {
             ResultObject<AccessAccessOK, AccessAccessFAIL> result_ =
@@ -205,14 +164,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_READLINK_3.
-         * @param arg1 parameter (of type READLINK3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type READLINK3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_READLINK procedure to read a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The read link arguments containing the symbolic link handle.</param>
+        /// <returns>The result containing the symbolic link target.</returns>
         public ResultObject<ReadLinkAccessOK, ReadLinkAccessFAIL> NFSPROC3_READLINK(ReadLinkArguments arg1)
         {
             ResultObject<ReadLinkAccessOK, ReadLinkAccessFAIL> result_ =
@@ -223,14 +179,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_READ_3.
-         * @param arg1 parameter (of type READ3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type READ3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_READ procedure to read data from a file.
+        /// </summary>
+        /// <param name="arg1">The read arguments containing the file handle, offset, and count.</param>
+        /// <returns>The result containing the file data.</returns>
         public ResultObject<ReadAccessOK, ReadAccessFAIL> NFSPROC3_READ(ReadArguments arg1)
         {
             ResultObject<ReadAccessOK, ReadAccessFAIL> result_ =
@@ -241,14 +194,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_WRITE_3.
-         * @param arg1 parameter (of type WRITE3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type WRITE3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_WRITE procedure to write data to a file.
+        /// </summary>
+        /// <param name="arg1">The write arguments containing the file handle, offset, and data.</param>
+        /// <returns>The result of the write operation.</returns>
         public ResultObject<WriteAccessOK, WriteAccessFAIL> NFSPROC3_WRITE(WriteArguments arg1)
         {
             ResultObject<WriteAccessOK, WriteAccessFAIL> result_ =
@@ -259,14 +209,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_CREATE_3.
-         * @param arg1 parameter (of type CREATE3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type CREATE3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_CREATE procedure to create a file.
+        /// </summary>
+        /// <param name="arg1">The make file arguments containing the directory and file attributes.</param>
+        /// <returns>The result of the create operation.</returns>
         public ResultObject<MakeFileAccessOK, MakeFileAccessFAIL> NFSPROC3_CREATE(MakeFileArguments arg1)
         {
             ResultObject<MakeFileAccessOK, MakeFileAccessFAIL> result_ =
@@ -277,14 +224,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_MKDIR_3.
-         * @param arg1 parameter (of type MKDIR3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type MKDIR3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_MKDIR procedure to create a directory.
+        /// </summary>
+        /// <param name="arg1">The make folder arguments containing the parent directory and directory attributes.</param>
+        /// <returns>The result of the mkdir operation.</returns>
         public ResultObject<MakeFolderAccessOK, MakeFolderAccessFAIL> NFSPROC3_MKDIR(MakeFolderArguments arg1)
         {
             ResultObject<MakeFolderAccessOK, MakeFolderAccessFAIL> result_ =
@@ -295,14 +239,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_SYMLINK_3.
-         * @param arg1 parameter (of type SYMLINK3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type SYMLINK3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_SYMLINK procedure to create a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The symlink arguments containing the link location and target.</param>
+        /// <returns>The result of the symlink operation.</returns>
         public ResultObject<SymlinkAccessOK, SymlinkAccessFAIL> NFSPROC3_SYMLINK(SymlinkArguments arg1)
         {
             ResultObject<SymlinkAccessOK, SymlinkAccessFAIL> result_ =
@@ -313,14 +254,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_MKNOD_3.
-         * @param arg1 parameter (of type MKNOD3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type MKNOD3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_MKNOD procedure to create a special device node.
+        /// </summary>
+        /// <param name="arg1">The make node arguments containing the device specifications.</param>
+        /// <returns>The result of the mknod operation.</returns>
         public ResultObject<MakeNodeAccessOK, MakeNodeAccessFAIL> NFSPROC3_MKNOD(MakeNodeArguments arg1)
         {
             ResultObject<MakeNodeAccessOK, MakeNodeAccessFAIL> result_ =
@@ -331,14 +269,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_REMOVE_3.
-         * @param arg1 parameter (of type REMOVE3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type REMOVE3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_REMOVE procedure to remove a file.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The result of the remove operation.</returns>
         public ResultObject<RemoveAccessOK, RemoveAccessFAIL> NFSPROC3_REMOVE(ItemOperationArguments arg1)
         {
             ResultObject<RemoveAccessOK, RemoveAccessFAIL> result_ =
@@ -349,14 +284,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_RMDIR_3.
-         * @param arg1 parameter (of type RMDIR3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type RMDIR3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_RMDIR procedure to remove a directory.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the parent directory handle and directory name.</param>
+        /// <returns>The result of the rmdir operation.</returns>
         public ResultObject<RemoveAccessOK, RemoveAccessFAIL> NFSPROC3_RMDIR(ItemOperationArguments arg1)
         {
             ResultObject<RemoveAccessOK, RemoveAccessFAIL> result_ =
@@ -367,14 +299,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_RENAME_3.
-         * @param arg1 parameter (of type RENAME3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type RENAME3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_RENAME procedure to rename a file or directory.
+        /// </summary>
+        /// <param name="arg1">The rename arguments containing the source and destination.</param>
+        /// <returns>The result of the rename operation.</returns>
         public ResultObject<RenameAccessOK, RenameAccessFAIL> NFSPROC3_RENAME(RenameArguments arg1)
         {
             ResultObject<RenameAccessOK, RenameAccessFAIL> result_ =
@@ -385,14 +314,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_LINK_3.
-         * @param arg1 parameter (of type LINK3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type LINK3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_LINK procedure to create a hard link.
+        /// </summary>
+        /// <param name="arg1">The link arguments containing the source and link location.</param>
+        /// <returns>The result of the link operation.</returns>
         public ResultObject<LinkAccessOK, LinkAccessFAIL> NFSPROC3_LINK(LinkArguments arg1)
         {
             ResultObject<LinkAccessOK, LinkAccessFAIL> result_ =
@@ -403,14 +329,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_READDIR_3.
-         * @param arg1 parameter (of type READDIR3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type READDIR3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_READDIR procedure to read directory entries.
+        /// </summary>
+        /// <param name="arg1">The read folder arguments containing the directory handle and pagination cookie.</param>
+        /// <returns>The result containing directory entries.</returns>
         public ResultObject<ReadFolderAccessResultOK, ReadFolderAccessResultFAIL> NFSPROC3_READDIR(ReadFolderArguments arg1)
         {
             ResultObject<ReadFolderAccessResultOK, ReadFolderAccessResultFAIL> result_ =
@@ -421,14 +344,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_READDIRPLUS_3.
-         * @param arg1 parameter (of type READDIRPLUS3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type READDIRPLUS3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_READDIRPLUS procedure to read directory entries with attributes.
+        /// </summary>
+        /// <param name="arg1">The extended read folder arguments containing the directory handle and pagination cookie.</param>
+        /// <returns>The result containing directory entries with their attributes.</returns>
         public ResultObject<ExtendedReadFolderAccessOK, ExtendedReadFolderAccessFAIL> NFSPROC3_READDIRPLUS(ExtendedReadFolderArguments arg1)
         {
             ResultObject<ExtendedReadFolderAccessOK, ExtendedReadFolderAccessFAIL> result_ =
@@ -439,14 +359,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_FSSTAT_3.
-         * @param arg1 parameter (of type FSSTAT3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type FSSTAT3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_FSSTAT procedure to get file system statistics.
+        /// </summary>
+        /// <param name="arg1">The file system statistics arguments containing the file system handle.</param>
+        /// <returns>The result containing file system statistics.</returns>
         public ResultObject<FSStatisticsAccessOK, FSStatisticsAccessFAIL> NFSPROC3_FSSTAT(FSStatisticsArguments arg1)
         {
             ResultObject<FSStatisticsAccessOK, FSStatisticsAccessFAIL> result_ =
@@ -457,14 +374,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_FSINFO_3.
-         * @param arg1 parameter (of type FSINFO3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type FSINFO3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_FSINFO procedure to get file system information.
+        /// </summary>
+        /// <param name="arg1">The file system info arguments containing the file system handle.</param>
+        /// <returns>The result containing file system information.</returns>
         public ResultObject<FSInfoAccessOK, FSInfoAccessFAIL> NFSPROC3_FSINFO(FSInfoArguments arg1)
         {
             ResultObject<FSInfoAccessOK, FSInfoAccessFAIL> result_ =
@@ -475,14 +389,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_PATHCONF_3.
-         * @param arg1 parameter (of type PATHCONF3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type PATHCONF3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_PATHCONF procedure to get path configuration.
+        /// </summary>
+        /// <param name="arg1">The path configuration arguments containing the file handle.</param>
+        /// <returns>The result containing path configuration information.</returns>
         public ResultObject<PathConfigurationAccessOK, PathConfigurationAccessFAIL> NFSPROC3_PATHCONF(PathConfigurationArguments arg1)
         {
             ResultObject<PathConfigurationAccessOK, PathConfigurationAccessFAIL> result_ =
@@ -493,14 +404,11 @@ namespace NFSLibrary.Protocols.V3.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC3_COMMIT_3.
-         * @param arg1 parameter (of type COMMIT3args) to the remote procedure call.
-         * @return Result from remote procedure call (of type COMMIT3res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC3_COMMIT procedure to commit cached data to stable storage.
+        /// </summary>
+        /// <param name="arg1">The commit arguments containing the file handle and byte range to commit.</param>
+        /// <returns>The result of the commit operation.</returns>
         public ResultObject<CommitAccessOK, CommitAccessFAIL> NFSPROC3_COMMIT(CommitArguments arg1)
         {
             ResultObject<CommitAccessOK, CommitAccessFAIL> result_ =

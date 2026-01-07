@@ -6,104 +6,100 @@
 
 namespace NFSLibrary.Protocols.V4.RPC
 {
-    using org.acplt.oncrpc;
+    using NFSLibrary.Rpc;
 
     using System.Net;
 
-    /**
-     * The class <code>NFSv4ProtocolClient</code> implements the client stub proxy
-     * for the NFS4_PROGRAM remote program. It provides method stubs
-     * which, when called, in turn call the appropriate remote method (procedure).
-     */
-
+    /// <summary>
+    /// Implements the client stub proxy for the NFSv4 protocol remote program.
+    /// Provides method stubs for invoking remote NFSv4 procedures via ONC/RPC.
+    /// </summary>
     public class NFSv4ProtocolClient : OncRpcClientStub
     {
-        /**
-         * Constructs a <code>NFSv4ProtocolClient</code> client stub proxy object
-         * from which the NFS4_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class.
+        /// Constructs a client stub proxy object from which the NFS4_PROGRAM remote program can be accessed.
+        /// </summary>
+        /// <param name="host">Internet address of host where to contact the remote program.</param>
+        /// <param name="protocol">Protocol to be used for ONC/RPC calls.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(IPAddress host, int protocol) : base(host, NFSv4Protocol.NFS4_PROGRAM, 4, 0, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class with specified secure port option.
+        /// </summary>
+        /// <param name="host">Internet address of host where to contact the remote program.</param>
+        /// <param name="protocol">Protocol to be used for ONC/RPC calls.</param>
+        /// <param name="useSecurePort">Indicates whether to use a secure port.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(IPAddress host, int protocol, bool useSecurePort)
             : base(host, NFSv4Protocol.NFS4_PROGRAM, 4, 0, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv4ProtocolClient</code> client stub proxy object
-         * from which the NFS4_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class with specified port.
+        /// Constructs a client stub proxy object from which the NFS4_PROGRAM remote program can be accessed.
+        /// </summary>
+        /// <param name="host">Internet address of host where to contact the remote program.</param>
+        /// <param name="port">Port number at host where the remote program can be reached.</param>
+        /// <param name="protocol">Protocol to be used for ONC/RPC calls.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(IPAddress host, int port, int protocol) : base(host, NFSv4Protocol.NFS4_PROGRAM, 4, port, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv4ProtocolClient</code> client stub proxy object
-         * from which the NFS4_PROGRAM remote program can be accessed.
-         * @param client ONC/RPC client connection object implementing a particular
-         *   protocol.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class using an existing ONC/RPC client.
+        /// Constructs a client stub proxy object from which the NFS4_PROGRAM remote program can be accessed.
+        /// </summary>
+        /// <param name="client">ONC/RPC client connection object implementing a particular protocol.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(OncRpcClient client) : base(client)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv4ProtocolClient</code> client stub proxy object
-         * from which the NFS4_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class with custom program and version.
+        /// Constructs a client stub proxy object from which the NFS4_PROGRAM remote program can be accessed.
+        /// </summary>
+        /// <param name="host">Internet address of host where to contact the remote program.</param>
+        /// <param name="program">Remote program number.</param>
+        /// <param name="version">Remote program version number.</param>
+        /// <param name="protocol">Protocol to be used for ONC/RPC calls.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(IPAddress host, int program, int version, int protocol) : base(host, program, version, 0, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv4ProtocolClient</code> client stub proxy object
-         * from which the NFS4_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolClient"/> class with custom program, version, and port.
+        /// Constructs a client stub proxy object from which the NFS4_PROGRAM remote program can be accessed.
+        /// </summary>
+        /// <param name="host">Internet address of host where to contact the remote program.</param>
+        /// <param name="program">Remote program number.</param>
+        /// <param name="version">Remote program version number.</param>
+        /// <param name="port">Port number at host where the remote program can be reached.</param>
+        /// <param name="protocol">Protocol to be used for ONC/RPC calls.</param>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public NFSv4ProtocolClient(IPAddress host, int program, int version, int port, int protocol) : base(host, program, version, port, protocol, true)
         {
         }
 
-        /**
-         * Call remote procedure NFSPROC4_NULL_4.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote procedure NFSPROC4_NULL_4.
+        /// This is a null procedure typically used for testing connectivity.
+        /// </summary>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
         public void NFSPROC4_NULL_4()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -111,19 +107,19 @@ namespace NFSLibrary.Protocols.V4.RPC
             client.call(NFSv4Protocol.NFSPROC4_NULL_4, NFSv4Protocol.NFS_V4, args_, result_);
         }
 
-        /**
-         * Call remote procedure NFSPROC4_COMPOUND_4.
-         * @param arg1 parameter (of type COMPOUND4args) to the remote procedure call.
-         * @return Result from remote procedure call (of type COMPOUND4res).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
-        public COMPOUND4res NFSPROC4_COMPOUND_4(COMPOUND4args arg1)
+        /// <summary>
+        /// Calls the remote procedure NFSPROC4_COMPOUND_4.
+        /// This procedure executes a compound operation consisting of multiple NFSv4 operations.
+        /// </summary>
+        /// <param name="arg1">The compound operation arguments.</param>
+        /// <returns>The result from the remote procedure call.</returns>
+        /// <exception cref="OncRpcException">Thrown if an ONC/RPC error occurs.</exception>
+        /// <exception cref="System.IO.IOException">Thrown if an I/O error occurs.</exception>
+        public Compound4Res NFSPROC4_COMPOUND_4(Compound4Args arg1)
         {
-            COMPOUND4res result_ = new COMPOUND4res();
+            Compound4Res result_ = new Compound4Res();
             client.call(NFSv4Protocol.NFSPROC4_COMPOUND_4, NFSv4Protocol.NFS_V4, arg1, result_);
             return result_;
         }
     }
-} // End of NFSv4ProtocolClient.cs
+}

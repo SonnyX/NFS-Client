@@ -1,0 +1,53 @@
+# NFSv4 Server for Integration Testing
+# Uses erichough/nfs-server image with NFSv4-only configuration
+#
+# NFSv4 is simpler - only requires TCP port 2049, no portmapper needed
+#
+# The grace period is configured to 10 seconds via NFS_SERVER_FLAGS for faster test startup.
+# (10 seconds is the minimum valid value; default is 90 seconds)
+#
+# Usage:
+#   docker-compose up -d     # Start server
+#   docker-compose down -v   # Stop server and remove volumes
+#   docker-compose logs -f   # View logs
+#
+# Ports:
+#   - 32049: NFS (TCP only)
+
+services:
+  nfsv4-server:
+    image: erichough/nfs-server:latest
+    container_name: nfs-integration-v4
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      # Use named volumes (not bind mounts) for NFS export compatibility
+      - nfsv4-data:/export
+      # NFS state directory for stable storage (required for proper NFSv4.1 state tracking)
+      - nfsv4-state:/var/lib/nfs
+    ports:
+      # NFSv4 only needs TCP 2049
+      - "32049:2049/tcp"
+    environment:
+      # NFSv4 only mode
+      NFS_VERSION: "4"
+      # Disable NFSv3 (and implicitly v2)
+      NFS_DISABLE_VERSION_3: "1"
+      # Export with fsid=0 for NFSv4 pseudo-filesystem root
+      NFS_EXPORT_0: "/export *(rw,sync,fsid=0,no_subtree_check,no_root_squash,insecure)"
+      # Set grace period to 10 seconds for faster test startup (minimum valid value)
+      NFS_SERVER_FLAGS: "--grace-time 10 --lease-time 10"
+    healthcheck:
+      # NFSv4 doesn't support showmount (requires rpcbind which is disabled)
+      # Check if nfsd threads are active
+      test: ["CMD-SHELL", "cat /proc/fs/nfsd/threads | grep -v '^0$'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  nfsv4-data:
+    driver: local
+  nfsv4-state:
+    driver: local

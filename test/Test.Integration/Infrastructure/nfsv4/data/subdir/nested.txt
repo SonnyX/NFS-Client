@@ -1,0 +1,2 @@
+This is a nested file in a subdirectory.
+Used for testing path traversal and directory operations.

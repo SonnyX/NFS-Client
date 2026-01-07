@@ -6,35 +6,59 @@
 
 namespace NFSLibrary.Protocols.V4.RPC.Callback
 {
-    using org.acplt.oncrpc;
-    using org.acplt.oncrpc.server;
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
     using System.Net;
 
-    /**
-     */
-
-    public abstract class NFSv4_callbackServerStub : OncRpcServerStub, OncRpcDispatchable
+    /// <summary>
+    /// The class <code>Nfsv4CallbackServerStub</code> provides a skeleton for the
+    /// NFS4_CALLBACK remote program. It provides method stubs which need to be
+    /// overridden by the actual implementation to handle callback operations.
+    /// </summary>
+    public abstract class Nfsv4CallbackServerStub : OncRpcServerStub, OncRpcDispatchable
     {
-        public NFSv4_callbackServerStub() : this(0)
+        /// <summary>
+        /// Constructs a <code>Nfsv4CallbackServerStub</code> server stub
+        /// using default port.
+        /// </summary>
+        public Nfsv4CallbackServerStub() : this(0)
         {
         }
 
-        public NFSv4_callbackServerStub(int port) : this(null, port)
+        /// <summary>
+        /// Constructs a <code>Nfsv4CallbackServerStub</code> server stub
+        /// using the specified port.
+        /// </summary>
+        /// <param name="port">Port number at which the server listens for incoming requests.</param>
+        public Nfsv4CallbackServerStub(int port) : this(null, port)
         {
         }
 
-        public NFSv4_callbackServerStub(IPAddress bindAddr, int port)
+        /// <summary>
+        /// Constructs a <code>Nfsv4CallbackServerStub</code> server stub
+        /// using the specified bind address and port.
+        /// </summary>
+        /// <param name="bindAddr">Internet address where the server should listen for incoming requests.</param>
+        /// <param name="port">Port number at which the server listens for incoming requests.</param>
+        public Nfsv4CallbackServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
-            new OncRpcServerTransportRegistrationInfo(NFSv4_callback.NFS4_CALLBACK, 1),
+            Info = new OncRpcServerTransportRegistrationInfo[] {
+            new OncRpcServerTransportRegistrationInfo(Nfsv4Callback.NFS4_CALLBACK, 1),
         };
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches an incoming ONC/RPC call to the appropriate callback procedure handler.
+        /// </summary>
+        /// <param name="call">The call information including parameters and transport details.</param>
+        /// <param name="program">The program number.</param>
+        /// <param name="version">The version number.</param>
+        /// <param name="procedure">The procedure number to invoke.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 1)
             {
@@ -49,10 +73,10 @@ namespace NFSLibrary.Protocols.V4.RPC.Callback
                         }
                     case 1:
                         {
-                            CB_COMPOUND4args args_ = new CB_COMPOUND4args();
-                            call.retrieveCall(args_);
-                            CB_COMPOUND4res result_ = CB_COMPOUND_1(args_);
-                            call.reply(result_);
+                            CbCompound4Args args = new CbCompound4Args();
+                            call.retrieveCall(args);
+                            CbCompound4Res result = CB_COMPOUND_1(args);
+                            call.reply(result);
                             break;
                         }
                     default:
@@ -66,8 +90,16 @@ namespace NFSLibrary.Protocols.V4.RPC.Callback
             }
         }
 
+        /// <summary>
+        /// Handles the CB_NULL callback operation (no-op ping).
+        /// </summary>
         public abstract void CB_NULL_1();
 
-        public abstract CB_COMPOUND4res CB_COMPOUND_1(CB_COMPOUND4args arg1);
+        /// <summary>
+        /// Handles the CB_COMPOUND callback operation which contains a sequence of callback operations.
+        /// </summary>
+        /// <param name="arg1">The compound callback arguments containing the operations to execute.</param>
+        /// <returns>The compound callback result containing the results of the operations.</returns>
+        public abstract CbCompound4Res CB_COMPOUND_1(CbCompound4Args arg1);
     }
-} // End of NFSv4_callbackServerStub.cs
+}

@@ -4,39 +4,59 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-using org.acplt.oncrpc.server;
-using System.Net;
-
-/**
- */
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
+    using System.Net;
+
+    /// <summary>
+    /// Abstract server stub for the NFSv3 Protocol.
+    /// Dispatches incoming RPC calls to the appropriate NFS procedure methods.
+    /// </summary>
     public abstract class NFSv3ProtocolServerStub : OncRpcServerStub, OncRpcDispatchable
     {
+        /// <summary>
+        /// Initializes a new instance of the NFSv3ProtocolServerStub class with default port.
+        /// </summary>
         public NFSv3ProtocolServerStub()
             : this(0)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the NFSv3ProtocolServerStub class with specified port.
+        /// </summary>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv3ProtocolServerStub(int port)
             : this(null, port)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the NFSv3ProtocolServerStub class with specified address and port.
+        /// </summary>
+        /// <param name="bindAddr">The IP address to bind to.</param>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv3ProtocolServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
+            Info = new OncRpcServerTransportRegistrationInfo[] {
             new OncRpcServerTransportRegistrationInfo(NFSv3Protocol.NFS_PROGRAM, 3),
         };
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches incoming ONC/RPC calls to the appropriate NFS procedure method.
+        /// </summary>
+        /// <param name="call">The RPC call information.</param>
+        /// <param name="program">The RPC program number.</param>
+        /// <param name="version">The RPC program version.</param>
+        /// <param name="procedure">The procedure number to call.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 3)
             {
@@ -291,48 +311,156 @@ namespace NFSLibrary.Protocols.V3.RPC
             }
         }
 
+        /// <summary>
+        /// Null procedure - does nothing, used for testing connectivity.
+        /// </summary>
         public abstract void NFSPROC3_NULL();
 
+        /// <summary>
+        /// Gets the file attributes for the specified file handle.
+        /// </summary>
+        /// <param name="arg1">The file handle arguments.</param>
+        /// <returns>The file attributes result.</returns>
         public abstract ResultObject<GetAttributeAccessOK, GetAttributeAccessOK> NFSPROC3_GETATTR(GetAttributeArguments arg1);
 
+        /// <summary>
+        /// Sets the file attributes for the specified file handle.
+        /// </summary>
+        /// <param name="arg1">The set attribute arguments.</param>
+        /// <returns>The result of the set attribute operation.</returns>
         public abstract ResultObject<SetAttributeAccessOK, SetAttributeAccessFAIL> NFSPROC3_SETATTR(SetAttributeArguments arg1);
 
+        /// <summary>
+        /// Looks up a file or directory by name and returns its file handle.
+        /// </summary>
+        /// <param name="arg1">The lookup arguments containing directory handle and name.</param>
+        /// <returns>The file handle and attributes of the looked up item.</returns>
         public abstract ResultObject<ItemOperationAccessResultOK, ItemOperationAccessResultFAIL> NFSPROC3_LOOKUP(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Checks access permissions for a file handle.
+        /// </summary>
+        /// <param name="arg1">The access check arguments.</param>
+        /// <returns>The access check result.</returns>
         public abstract ResultObject<AccessAccessOK, AccessAccessFAIL> NFSPROC3_ACCESS(AccessArguments arg1);
 
+        /// <summary>
+        /// Reads the target path of a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The symbolic link file handle.</param>
+        /// <returns>The target path of the symbolic link.</returns>
         public abstract ResultObject<ReadLinkAccessOK, ReadLinkAccessFAIL> NFSPROC3_READLINK(ReadLinkArguments arg1);
 
+        /// <summary>
+        /// Reads data from a file.
+        /// </summary>
+        /// <param name="arg1">The read arguments containing file handle, offset, and count.</param>
+        /// <returns>The read data and status.</returns>
         public abstract ResultObject<ReadAccessOK, ReadAccessFAIL> NFSPROC3_READ(ReadArguments arg1);
 
+        /// <summary>
+        /// Writes data to a file.
+        /// </summary>
+        /// <param name="arg1">The write arguments containing file handle, offset, and data.</param>
+        /// <returns>The write result and status.</returns>
         public abstract ResultObject<WriteAccessOK, WriteAccessFAIL> NFSPROC3_WRITE(WriteArguments arg1);
 
+        /// <summary>
+        /// Creates a new file.
+        /// </summary>
+        /// <param name="arg1">The create file arguments.</param>
+        /// <returns>The file handle and attributes of the created file.</returns>
         public abstract ResultObject<MakeFileAccessOK, MakeFileAccessFAIL> NFSPROC3_CREATE(MakeFileArguments arg1);
 
+        /// <summary>
+        /// Creates a new directory.
+        /// </summary>
+        /// <param name="arg1">The create directory arguments.</param>
+        /// <returns>The file handle and attributes of the created directory.</returns>
         public abstract ResultObject<MakeFolderAccessOK, MakeFolderAccessFAIL> NFSPROC3_MKDIR(MakeFolderArguments arg1);
 
+        /// <summary>
+        /// Creates a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The symbolic link arguments.</param>
+        /// <returns>The result of the symbolic link creation.</returns>
         public abstract ResultObject<SymlinkAccessOK, SymlinkAccessFAIL> NFSPROC3_SYMLINK(SymlinkArguments arg1);
 
+        /// <summary>
+        /// Creates a special device node.
+        /// </summary>
+        /// <param name="arg1">The make node arguments.</param>
+        /// <returns>The result of the node creation.</returns>
         public abstract ResultObject<MakeNodeAccessOK, MakeNodeAccessFAIL> NFSPROC3_MKNOD(MakeNodeArguments arg1);
 
+        /// <summary>
+        /// Removes a file.
+        /// </summary>
+        /// <param name="arg1">The remove arguments containing directory handle and file name.</param>
+        /// <returns>The result of the remove operation.</returns>
         public abstract ResultObject<RemoveAccessOK, RemoveAccessFAIL> NFSPROC3_REMOVE(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Removes a directory.
+        /// </summary>
+        /// <param name="arg1">The remove arguments containing parent directory handle and directory name.</param>
+        /// <returns>The result of the remove directory operation.</returns>
         public abstract ResultObject<RemoveAccessOK, RemoveAccessFAIL> NFSPROC3_RMDIR(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Renames a file or directory.
+        /// </summary>
+        /// <param name="arg1">The rename arguments containing source and destination information.</param>
+        /// <returns>The result of the rename operation.</returns>
         public abstract ResultObject<RenameAccessOK, RenameAccessFAIL> NFSPROC3_RENAME(RenameArguments arg1);
 
+        /// <summary>
+        /// Creates a hard link to a file.
+        /// </summary>
+        /// <param name="arg1">The link arguments.</param>
+        /// <returns>The result of the link creation.</returns>
         public abstract ResultObject<LinkAccessOK, LinkAccessFAIL> NFSPROC3_LINK(LinkArguments arg1);
 
+        /// <summary>
+        /// Reads directory entries.
+        /// </summary>
+        /// <param name="arg1">The read directory arguments.</param>
+        /// <returns>The list of directory entries.</returns>
         public abstract ResultObject<ReadFolderAccessResultOK, ReadFolderAccessResultFAIL> NFSPROC3_READDIR(ReadFolderArguments arg1);
 
+        /// <summary>
+        /// Reads directory entries with file attributes.
+        /// </summary>
+        /// <param name="arg1">The read directory plus arguments.</param>
+        /// <returns>The list of directory entries with attributes.</returns>
         public abstract ResultObject<ExtendedReadFolderAccessOK, ExtendedReadFolderAccessFAIL> NFSPROC3_READDIRPLUS(ExtendedReadFolderArguments arg1);
 
+        /// <summary>
+        /// Gets file system statistics.
+        /// </summary>
+        /// <param name="arg1">The file system statistics arguments.</param>
+        /// <returns>The file system statistics.</returns>
         public abstract ResultObject<FSStatisticsAccessOK, FSStatisticsAccessFAIL> NFSPROC3_FSSTAT(FSStatisticsArguments arg1);
 
+        /// <summary>
+        /// Gets file system information.
+        /// </summary>
+        /// <param name="arg1">The file system information arguments.</param>
+        /// <returns>The file system information.</returns>
         public abstract ResultObject<FSInfoAccessOK, FSInfoAccessFAIL> NFSPROC3_FSINFO(FSInfoArguments arg1);
 
+        /// <summary>
+        /// Gets path configuration information.
+        /// </summary>
+        /// <param name="arg1">The path configuration arguments.</param>
+        /// <returns>The path configuration information.</returns>
         public abstract ResultObject<PathConfigurationAccessOK, PathConfigurationAccessFAIL> NFSPROC3_PATHCONF(PathConfigurationArguments arg1);
 
+        /// <summary>
+        /// Commits cached data to stable storage.
+        /// </summary>
+        /// <param name="arg1">The commit arguments.</param>
+        /// <returns>The result of the commit operation.</returns>
         public abstract ResultObject<CommitAccessOK, CommitAccessFAIL> NFSPROC3_COMMIT(CommitArguments arg1);
     }
 

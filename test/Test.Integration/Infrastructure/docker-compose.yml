@@ -1,0 +1,74 @@
+# Combined NFS Server Orchestration for Integration Testing
+# Starts NFSv3 and NFSv4 servers simultaneously
+#
+# Note: NFSv2 is not supported by the erichough/nfs-server image
+#
+# Usage:
+#   docker-compose up -d          # Start all servers
+#   docker-compose down -v        # Stop all servers and remove volumes
+#   docker-compose up -d nfsv3    # Start only NFSv3 server
+#   docker-compose logs -f        # View logs
+#
+# Port Summary:
+#   NFSv3: 22049 (NFS), 20111 (portmap), 22765-22767 (callbacks)
+#   NFSv4: 32049 (NFS only)
+
+services:
+  # NFSv3 Server
+  nfsv3:
+    image: erichough/nfs-server:latest
+    container_name: nfs-integration-v3
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - nfsv3-data:/export
+    ports:
+      - "22049:2049/tcp"
+      - "22049:2049/udp"
+      - "20111:111/tcp"
+      - "20111:111/udp"
+      - "22765:32765/tcp"
+      - "22765:32765/udp"
+      - "22767:32767/tcp"
+      - "22767:32767/udp"
+    environment:
+      NFS_VERSION: "3"
+      NFS_DISABLE_VERSION_4: "1"
+      NFS_EXPORT_0: "/export *(rw,sync,no_subtree_check,no_root_squash,insecure)"
+    healthcheck:
+      test: ["CMD", "showmount", "-e", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # NFSv4 Server
+  nfsv4:
+    image: erichough/nfs-server:latest
+    container_name: nfs-integration-v4
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - nfsv4-data:/export
+    ports:
+      - "32049:2049/tcp"
+    environment:
+      NFS_VERSION: "4"
+      NFS_DISABLE_VERSION_3: "1"
+      NFS_EXPORT_0: "/export *(rw,sync,fsid=0,no_subtree_check,no_root_squash,insecure)"
+      # Set grace period to 10 seconds for faster test startup (minimum valid value)
+      NFS_SERVER_FLAGS: "--grace-time 10 --lease-time 10"
+    healthcheck:
+      # NFSv4 doesn't support showmount (requires rpcbind which is disabled)
+      # Check if nfsd threads are active
+      test: ["CMD-SHELL", "cat /proc/fs/nfsd/threads | grep -v '^0$'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  nfsv3-data:
+    driver: local
+  nfsv4-data:
+    driver: local

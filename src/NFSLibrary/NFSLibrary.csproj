@@ -2,21 +2,24 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.1;net8.0;net10.0</TargetFrameworks>
-		<LangVersion>latest</LangVersion>
-
+		<LangVersion>10.0</LangVersion>
 		<Authors>Randy von der Weide</Authors>
 		<PackageId>NFS-Client</PackageId>
 		<Product>NFS-Client</Product>
 		<RepositoryUrl>https://github.com/SonnyX/NFS-Client</RepositoryUrl>
 		<PackageTags>nfs nfs-client</PackageTags>
-		<Version>1.0.1</Version>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-
-		<NuGetAuditMode>All</NuGetAuditMode>
-		<WarningsAsErrors>$(WarningsAsErrors);NU1902;NU1903;NU1904</WarningsAsErrors>
+		<Version>2.0.0</Version>
+		<Nullable>enable</Nullable>
+		<NoWarn>CS8618;CS8625;CS8600;CS8602;CS8601;CS8604;CS8603;CS8981;CS8622;CS8605</NoWarn>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<DocumentationFile>NFSLibrary.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="NFSLibrary.xml" CopyToOutputDirectory="PreserveNewest" Condition="Exists('NFSLibrary.xml')" />
 	</ItemGroup>
 </Project>

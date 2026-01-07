@@ -4,30 +4,51 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents successful get attribute data for NFS v3 protocol.
+    /// </summary>
     public class GetAttributeAccessOK : XdrAble
     {
-        private FileAttributes _obj_attributes;
+        private FileAttributes _ObjAttributes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAttributeAccessOK"/> class.
+        /// </summary>
         public GetAttributeAccessOK()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAttributeAccessOK"/> class from XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream.</param>
         public GetAttributeAccessOK(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
-        { this._obj_attributes.xdrEncode(xdr); }
+        /// <summary>
+        /// Encodes the object to XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
+        { this._ObjAttributes.XdrEncode(xdr); }
 
-        public void xdrDecode(XdrDecodingStream xdr)
-        { this._obj_attributes = new FileAttributes(xdr); }
+        /// <summary>
+        /// Decodes the object from XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
+        { this._ObjAttributes = new FileAttributes(xdr); }
 
+        /// <summary>
+        /// Gets the file attributes of the object.
+        /// </summary>
         public FileAttributes Attributes
         {
             get
-            { return this._obj_attributes; }
+            { return this._ObjAttributes; }
         }
     }
 

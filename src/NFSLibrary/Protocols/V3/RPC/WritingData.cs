@@ -4,43 +4,67 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents weak cache consistency data containing before and after attributes for NFS v3 protocol operations.
+    /// </summary>
     public class WritingData : XdrAble
     {
-        private PreOperationAttributes _before;
-        private PostOperationAttributes _after;
+        private PreOperationAttributes _Before;
+        private PostOperationAttributes _After;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WritingData"/> class.
+        /// </summary>
         public WritingData()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WritingData"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public WritingData(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._before.xdrEncode(xdr);
-            this._after.xdrEncode(xdr);
+            this._Before.XdrEncode(xdr);
+            this._After.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._before = new PreOperationAttributes(xdr);
-            this._after = new PostOperationAttributes(xdr);
+            this._Before = new PreOperationAttributes(xdr);
+            this._After = new PostOperationAttributes(xdr);
         }
 
+        /// <summary>
+        /// Gets the attributes before the operation.
+        /// </summary>
         public PreOperationAttributes Before
         {
             get
-            { return this._before; }
+            { return this._Before; }
         }
 
+        /// <summary>
+        /// Gets the attributes after the operation.
+        /// </summary>
         public PostOperationAttributes After
         {
             get
-            { return this._after; }
+            { return this._After; }
         }
     }
 

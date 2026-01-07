@@ -4,53 +4,80 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC.Mount
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents a mount entry body containing host and directory information for NFS v3 protocol operations.
+    /// </summary>
     public class MountBody : XdrAble
     {
-        private Name _hostname;
-        private Name _directory;
-        private MountList _nextentry;
+        private Name _Hostname;
+        private Name _Directory;
+        private MountList _Nextentry;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MountBody"/> class.
+        /// </summary>
         public MountBody()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MountBody"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public MountBody(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._hostname.xdrEncode(xdr);
-            this._directory.xdrEncode(xdr);
-            this._nextentry.xdrEncode(xdr);
+            this._Hostname.XdrEncode(xdr);
+            this._Directory.XdrEncode(xdr);
+            this._Nextentry.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._hostname = new Name(xdr);
-            this._directory = new Name(xdr);
-            this._nextentry = new MountList(xdr);
+            this._Hostname = new Name(xdr);
+            this._Directory = new Name(xdr);
+            this._Nextentry = new MountList(xdr);
         }
 
+        /// <summary>
+        /// Gets the hostname of the mounted client.
+        /// </summary>
         public Name HostName
         {
             get
-            { return this._hostname; }
+            { return this._Hostname; }
         }
 
+        /// <summary>
+        /// Gets the mounted directory path.
+        /// </summary>
         public Name Directory
         {
             get
-            { return this._directory; }
+            { return this._Directory; }
         }
 
+        /// <summary>
+        /// Gets the next entry in the mount list.
+        /// </summary>
         public MountList NextEntry
         {
             get
-            { return this._nextentry; }
+            { return this._Nextentry; }
         }
     }
 

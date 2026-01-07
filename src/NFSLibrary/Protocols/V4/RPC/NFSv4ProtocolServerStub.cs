@@ -6,35 +6,55 @@
 
 namespace NFSLibrary.Protocols.V4.RPC
 {
-    using org.acplt.oncrpc;
-    using org.acplt.oncrpc.server;
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
     using System.Net;
 
-    /**
-     */
-
+    /// <summary>
+    /// Abstract base class for NFSv4 protocol server implementation.
+    /// Handles ONC/RPC call dispatching and provides abstract methods for NFSv4 procedure implementations.
+    /// </summary>
     public abstract class NFSv4ProtocolServerStub : OncRpcServerStub, OncRpcDispatchable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolServerStub"/> class using the default port.
+        /// </summary>
         public NFSv4ProtocolServerStub() : this(0)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolServerStub"/> class with a specified port.
+        /// </summary>
+        /// <param name="port">The port number on which to listen for incoming requests.</param>
         public NFSv4ProtocolServerStub(int port) : this(null, port)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv4ProtocolServerStub"/> class with a specified bind address and port.
+        /// </summary>
+        /// <param name="bindAddr">The IP address to bind to.</param>
+        /// <param name="port">The port number on which to listen for incoming requests.</param>
         public NFSv4ProtocolServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
+            Info = new OncRpcServerTransportRegistrationInfo[] {
             new OncRpcServerTransportRegistrationInfo(NFSv4Protocol.NFS4_PROGRAM, 4),
         };
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches incoming ONC/RPC calls to the appropriate procedure implementation.
+        /// </summary>
+        /// <param name="call">Information about the incoming call.</param>
+        /// <param name="program">The program number.</param>
+        /// <param name="version">The version number.</param>
+        /// <param name="procedure">The procedure number to execute.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 4)
             {
@@ -49,9 +69,9 @@ namespace NFSLibrary.Protocols.V4.RPC
                         }
                     case 1:
                         {
-                            COMPOUND4args args_ = new COMPOUND4args();
+                            Compound4Args args_ = new Compound4Args();
                             call.retrieveCall(args_);
-                            COMPOUND4res result_ = NFSPROC4_COMPOUND_4(args_);
+                            Compound4Res result_ = NFSPROC4_COMPOUND_4(args_);
                             call.reply(result_);
                             break;
                         }
@@ -66,8 +86,18 @@ namespace NFSLibrary.Protocols.V4.RPC
             }
         }
 
+        /// <summary>
+        /// Implements the NFSPROC4_NULL_4 procedure.
+        /// This is a null procedure typically used for testing connectivity.
+        /// </summary>
         public abstract void NFSPROC4_NULL_4();
 
-        public abstract COMPOUND4res NFSPROC4_COMPOUND_4(COMPOUND4args arg1);
+        /// <summary>
+        /// Implements the NFSPROC4_COMPOUND_4 procedure.
+        /// This procedure executes a compound operation consisting of multiple NFSv4 operations.
+        /// </summary>
+        /// <param name="arg1">The compound operation arguments.</param>
+        /// <returns>The result of the compound operation.</returns>
+        public abstract Compound4Res NFSPROC4_COMPOUND_4(Compound4Args arg1);
     }
-} // End of NFSv4ProtocolServerStub.cs
+}

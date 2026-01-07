@@ -4,37 +4,58 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for get attribute operations for NFS v3 protocol operations.
+    /// </summary>
     public class GetAttributeArguments : XdrAble
     {
-        private NFSHandle _handle;
+        private NFSHandle _Handle;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAttributeArguments"/> class.
+        /// </summary>
         public GetAttributeArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetAttributeArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public GetAttributeArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
-        { this._handle.xdrEncode(xdr); }
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
+        { this._Handle.XdrEncode(xdr); }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._handle = new NFSHandle();
-            this._handle.Version = V3.RPC.NFSv3Protocol.NFS_V3;
-            this._handle.xdrDecode(xdr); ;
+            this._Handle = new NFSHandle();
+            this._Handle.Version = V3.RPC.NFSv3Protocol.NFS_V3;
+            this._Handle.XdrDecode(xdr); ;
         }
 
+        /// <summary>
+        /// Gets or sets the file or directory handle to retrieve attributes for.
+        /// </summary>
         public NFSHandle Handle
         {
             get
-            { return this._handle; }
+            { return this._Handle; }
             set
-            { this._handle = value; }
+            { this._Handle = value; }
         }
     }
 

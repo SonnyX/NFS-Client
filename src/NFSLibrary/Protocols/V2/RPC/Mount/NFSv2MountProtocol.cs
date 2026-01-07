@@ -3,26 +3,67 @@
  * jrpcgen is part of the "Remote Tea.Net" ONC/RPC package for C#
  * See http://remotetea.sourceforge.net for details
  */
-/**
- * A collection of constants used by the "NFSv2MountProtocol" ONC/RPC program.
- */
 
 namespace NFSLibrary.Protocols.V2.RPC.Mount
 {
+    /// <summary>
+    /// Represents constants and procedure identifiers for the NFS v2 mount protocol.
+    /// </summary>
     public class NFSv2MountProtocol
     {
+        /// <summary>
+        /// The mount program number.
+        /// </summary>
         public const int MOUNTPROG = 100005;
+
+        /// <summary>
+        /// The mount protocol version number.
+        /// </summary>
         public const int MOUNTVERS = 1;
 
+        /// <summary>
+        /// Null procedure for testing server availability.
+        /// </summary>
         public const int MOUNTPROC_NULL = 0;
+
+        /// <summary>
+        /// Mount a file system procedure.
+        /// </summary>
         public const int MOUNTPROC_MNT = 1;
+
+        /// <summary>
+        /// Dump mount list procedure.
+        /// </summary>
         public const int MOUNTPROC_DUMP = 2;
+
+        /// <summary>
+        /// Unmount a file system procedure.
+        /// </summary>
         public const int MOUNTPROC_UMNT = 3;
+
+        /// <summary>
+        /// Unmount all file systems procedure.
+        /// </summary>
         public const int MOUNTPROC_UMNTALL = 4;
+
+        /// <summary>
+        /// Get export list procedure.
+        /// </summary>
         public const int MOUNTPROC_EXPORT = 5;
 
+        /// <summary>
+        /// Maximum length of a mount path in bytes.
+        /// </summary>
         public const int MNTPATHLEN = 1024;
+
+        /// <summary>
+        /// Maximum length of a mount name in bytes.
+        /// </summary>
         public const int MNTNAMLEN = 255;
+
+        /// <summary>
+        /// Size of a file handle in bytes.
+        /// </summary>
         public const int FHSIZE = 32;
     }
 

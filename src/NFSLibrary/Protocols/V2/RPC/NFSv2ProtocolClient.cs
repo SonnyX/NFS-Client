@@ -4,116 +4,99 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-using System.Net;
-
-/**
- * The class <code>NFSv2ProtocolClient</code> implements the client stub proxy
- * for the NFS_PROGRAM remote program. It provides method stubs
- * which, when called, in turn call the appropriate remote method (procedure).
- */
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    using System.Net;
+    /// <summary>
+    /// Represents the client stub proxy for NFS v2 protocol operations.
+    /// </summary>
     public class NFSv2ProtocolClient : OncRpcClientStub
     {
-        /**
-         * Constructs a <code>NFSv2ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2ProtocolClient(IPAddress host, int protocol)
             : base(host, NFSv2Protocol.NFS_PROGRAM, 2, 0, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv2ProtocolClient(IPAddress host, int protocol, bool useSecurePort)
             : base(host, NFSv2Protocol.NFS_PROGRAM, 2, 0, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2ProtocolClient(IPAddress host, int port, int protocol)
             : base(host, NFSv2Protocol.NFS_PROGRAM, 2, port, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param client ONC/RPC client connection object implementing a particular
-         *   protocol.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="client">The ONC/RPC client connection object.</param>
         public NFSv2ProtocolClient(OncRpcClient client)
             : base(client)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2ProtocolClient(IPAddress host, int program, int version, int protocol)
             : base(host, program, version, 0, protocol, true)
         {
         }
 
-        /**
-         * Constructs a <code>NFSv2ProtocolClient</code> client stub proxy object
-         * from which the NFS_PROGRAM remote program can be accessed.
-         * @param host Internet address of host where to contact the remote program.
-         * @param program Remote program number.
-         * @param version Remote program version number.
-         * @param port Port number at host where the remote program can be reached.
-         * @param protocol {@link org.acplt.oncrpc.OncRpcProtocols Protocol} to be
-         *   used for ONC/RPC calls.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
         public NFSv2ProtocolClient(IPAddress host, int program, int version, int port, int protocol)
             : base(host, program, version, port, protocol, true)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolClient"/> class.
+        /// </summary>
+        /// <param name="host">The host address of the NFS server.</param>
+        /// <param name="program">The remote program number.</param>
+        /// <param name="version">The remote program version number.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="protocol">The ONC/RPC protocol to use.</param>
+        /// <param name="useSecurePort">Whether to use a secure port.</param>
         public NFSv2ProtocolClient(IPAddress host, int program, int version, int port, int protocol, bool useSecurePort)
             : base(host, program, version, port, protocol, useSecurePort)
         {
         }
 
-        /**
-         * Call remote procedure NFSPROC_NULL_2.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_NULL procedure.
+        /// </summary>
         public void NFSPROC_NULL()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -122,14 +105,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             client.call(NFSv2Protocol.NFSPROC_NULL, NFSv2Protocol.NFS_VERSION, args_, result_);
         }
 
-        /**
-         * Call remote procedure NFSPROC_GETATTR_2.
-         * @param arg1 parameter (of type nfshandle) to the remote procedure call.
-         * @return Result from remote procedure call (of type attrstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_GETATTR procedure.
+        /// </summary>
+        /// <param name="arg1">The file handle.</param>
+        /// <returns>The file status result.</returns>
         public FileStatus NFSPROC_GETATTR(NFSHandle arg1)
         {
             FileStatus result_ = new FileStatus();
@@ -139,14 +119,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_SETATTR_2.
-         * @param arg1 parameter (of type sattrargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type attrstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_SETATTR procedure to set file attributes.
+        /// </summary>
+        /// <param name="arg1">The file arguments containing the handle and attributes to set.</param>
+        /// <returns>The file status result.</returns>
         public FileStatus NFSPROC_SETATTR(FileArguments arg1)
         {
             FileStatus result_ = new FileStatus();
@@ -156,12 +133,9 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_ROOT_2.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_ROOT procedure (obsolete).
+        /// </summary>
         public void NFSPROC_ROOT()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -170,14 +144,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             client.call(NFSv2Protocol.NFSPROC_ROOT, NFSv2Protocol.NFS_VERSION, args_, result_);
         }
 
-        /**
-         * Call remote procedure NFSPROC_LOOKUP_2.
-         * @param arg1 parameter (of type diropargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type diropres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_LOOKUP procedure to look up a file name.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The item operation status result.</returns>
         public ItemOperationStatus NFSPROC_LOOKUP(ItemOperationArguments arg1)
         {
             ItemOperationStatus result_ = new ItemOperationStatus();
@@ -187,14 +158,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_READLINK_2.
-         * @param arg1 parameter (of type nfshandle) to the remote procedure call.
-         * @return Result from remote procedure call (of type readlinkres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_READLINK procedure to read a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The file handle of the symbolic link.</param>
+        /// <returns>The link status result containing the link target.</returns>
         public LinkStatus NFSPROC_READLINK(NFSHandle arg1)
         {
             LinkStatus result_ = new LinkStatus();
@@ -204,14 +172,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_READ_2.
-         * @param arg1 parameter (of type readargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type readres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_READ procedure to read data from a file.
+        /// </summary>
+        /// <param name="arg1">The read arguments containing the file handle, offset, and count.</param>
+        /// <returns>The read status result containing the file data.</returns>
         public ReadStatus NFSPROC_READ(ReadArguments arg1)
         {
             ReadStatus result_ = new ReadStatus();
@@ -221,12 +186,9 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_WRITECACHE_2.
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_WRITECACHE procedure (obsolete).
+        /// </summary>
         public void NFSPROC_WRITECACHE()
         {
             XdrVoid args_ = XdrVoid.XDR_VOID;
@@ -235,14 +197,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             client.call(NFSv2Protocol.NFSPROC_WRITECACHE, NFSv2Protocol.NFS_VERSION, args_, result_);
         }
 
-        /**
-         * Call remote procedure NFSPROC_WRITE_2.
-         * @param arg1 parameter (of type writeargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type attrstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_WRITE procedure to write data to a file.
+        /// </summary>
+        /// <param name="arg1">The write arguments containing the file handle, offset, and data.</param>
+        /// <returns>The file status result.</returns>
         public FileStatus NFSPROC_WRITE(WriteArguments arg1)
         {
             FileStatus result_ = new FileStatus();
@@ -252,14 +211,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_CREATE_2.
-         * @param arg1 parameter (of type createargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type diropres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_CREATE procedure to create a file.
+        /// </summary>
+        /// <param name="arg1">The create arguments containing the directory and file attributes.</param>
+        /// <returns>The item operation status result.</returns>
         public ItemOperationStatus NFSPROC_CREATE(CreateArguments arg1)
         {
             ItemOperationStatus result_ = new ItemOperationStatus();
@@ -269,14 +225,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_REMOVE_2.
-         * @param arg1 parameter (of type diropargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type nfsstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_REMOVE procedure to remove a file.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The NFS status code.</returns>
         public int NFSPROC_REMOVE(ItemOperationArguments arg1)
         {
             XdrInt result_ = new XdrInt();
@@ -286,14 +239,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_.intValue();
         }
 
-        /**
-         * Call remote procedure NFSPROC_RENAME_2.
-         * @param arg1 parameter (of type renameargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type nfsstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_RENAME procedure to rename a file.
+        /// </summary>
+        /// <param name="arg1">The rename arguments containing the source and destination.</param>
+        /// <returns>The NFS status code.</returns>
         public int NFSPROC_RENAME(RenameArguments arg1)
         {
             XdrInt result_ = new XdrInt();
@@ -303,14 +253,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_.intValue();
         }
 
-        /**
-         * Call remote procedure NFSPROC_LINK_2.
-         * @param arg1 parameter (of type linkargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type nfsstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_LINK procedure to create a hard link.
+        /// </summary>
+        /// <param name="arg1">The link arguments containing the source and link location.</param>
+        /// <returns>The NFS status code.</returns>
         public int NFSPROC_LINK(LinkArguments arg1)
         {
             XdrInt result_ = new XdrInt();
@@ -320,14 +267,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_.intValue();
         }
 
-        /**
-         * Call remote procedure NFSPROC_SYMLINK_2.
-         * @param arg1 parameter (of type symlinkargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type nfsstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_SYMLINK procedure to create a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The symlink arguments containing the link location and target.</param>
+        /// <returns>The NFS status code.</returns>
         public int NFSPROC_SYMLINK(SymlinkArguments arg1)
         {
             XdrInt result_ = new XdrInt();
@@ -337,14 +281,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_.intValue();
         }
 
-        /**
-         * Call remote procedure NFSPROC_MKDIR_2.
-         * @param arg1 parameter (of type createargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type diropres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_MKDIR procedure to create a directory.
+        /// </summary>
+        /// <param name="arg1">The create arguments containing the parent directory and new directory attributes.</param>
+        /// <returns>The item operation status result.</returns>
         public ItemOperationStatus NFSPROC_MKDIR(CreateArguments arg1)
         {
             ItemOperationStatus result_ = new ItemOperationStatus();
@@ -354,14 +295,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_RMDIR_2.
-         * @param arg1 parameter (of type diropargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type nfsstat).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_RMDIR procedure to remove a directory.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the parent directory handle and directory name.</param>
+        /// <returns>The NFS status code.</returns>
         public int NFSPROC_RMDIR(ItemOperationArguments arg1)
         {
             XdrInt result_ = new XdrInt();
@@ -371,14 +309,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_.intValue();
         }
 
-        /**
-         * Call remote procedure NFSPROC_READDIR_2.
-         * @param arg1 parameter (of type readdirargs) to the remote procedure call.
-         * @return Result from remote procedure call (of type readdirres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_READDIR procedure to read directory entries.
+        /// </summary>
+        /// <param name="arg1">The item arguments containing the directory handle and pagination cookie.</param>
+        /// <returns>The item status result containing directory entries.</returns>
         public ItemStatus NFSPROC_READDIR(ItemArguments arg1)
         {
             ItemStatus result_ = new ItemStatus();
@@ -388,14 +323,11 @@ namespace NFSLibrary.Protocols.V2.RPC
             return result_;
         }
 
-        /**
-         * Call remote procedure NFSPROC_STATFS_2.
-         * @param arg1 parameter (of type nfshandle) to the remote procedure call.
-         * @return Result from remote procedure call (of type statfsres).
-         * @throws OncRpcException if an ONC/RPC error occurs.
-         * @throws IOException if an I/O error occurs.
-         */
-
+        /// <summary>
+        /// Calls the remote NFSPROC_STATFS procedure to get file system statistics.
+        /// </summary>
+        /// <param name="arg1">The file handle of the file system.</param>
+        /// <returns>The file system statistics status result.</returns>
         public FSStatStatus NFSPROC_STATFS(NFSHandle arg1)
         {
             FSStatStatus result_ = new FSStatStatus();

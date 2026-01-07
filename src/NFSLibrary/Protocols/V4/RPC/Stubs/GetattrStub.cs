@@ -1,53 +1,65 @@
-﻿using org.acplt.oncrpc;
-using System;
-using System.Collections.Generic;
-
 namespace NFSLibrary.Protocols.V4.RPC.Stubs
 {
+    using NFSLibrary.Rpc;
+    using System;
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// Provides stub methods for creating NFSv4 GETATTR operation requests and decoding attribute responses.
+    /// The GETATTR operation retrieves file or directory attributes (metadata) such as size, mode, type,
+    /// and timestamps. Attributes are requested using a bitmap mask and returned in encoded XDR format.
+    /// This class handles both building requests and decoding the attribute responses.
+    /// </summary>
     internal class GetattrStub
     {
-        public static nfs_argop4 generateRequest(List<int> attrs)
+        /// <summary>
+        /// Generates a GETATTR operation request to retrieve file attributes.
+        /// The attribute IDs are converted into a bitmap mask that tells the server
+        /// which attributes to return in the response.
+        /// </summary>
+        /// <param name="attrs">List of attribute IDs to retrieve (e.g., FATTR4_SIZE, FATTR4_MODE).</param>
+        /// <returns>An NfsArgop4 structure containing the GETATTR operation request.</returns>
+        public static NfsArgop4 GenerateRequest(List<int> attrs)
         {
-            nfs_argop4 op = new nfs_argop4();
-            GETATTR4args args = new GETATTR4args();
+            NfsArgop4 op = new NfsArgop4();
+            Getattr4Args args = new Getattr4Args();
 
-            args.attr_request = new bitmap4();
-            args.attr_request.value = new uint32_t[2];
-            args.attr_request.value[0] = new uint32_t();
-            args.attr_request.value[1] = new uint32_t();
+            args.Attr_request = new Bitmap4();
+            args.Attr_request.Value = new Uint32T[2];
+            args.Attr_request.Value[0] = new Uint32T();
+            args.Attr_request.Value[1] = new Uint32T();
 
             foreach (int mask in attrs)
             {
                 int bit = mask - (32 * (mask / 32));
-                args.attr_request.value[mask / 32].value |= 1 << bit;
+                args.Attr_request.Value[mask / 32].Value |= 1 << bit;
             }
 
-            op.argop = nfs_opnum4.OP_GETATTR;
-            op.opgetattr = args;
+            op.Argop = NfsOpnum4.OP_GETATTR;
+            op.Opgetattr = args;
 
             return op;
         }
 
-        /* public static List<Integer> supportedAttrs(bitmap4 bitmap) {
-             List<Integer> supported = new ArrayList<Integer>();
-
-             // TODO:
-
-             return supported;
-         }*/
-
-        public static Dictionary<int, Object> decodeType(fattr4 attributes)
+        /// <summary>
+        /// Decodes file attributes from an Fattr4 structure.
+        /// Extracts the attribute bitmap to determine which attributes are present,
+        /// then decodes each attribute from the XDR-encoded byte stream.
+        /// </summary>
+        /// <param name="attributes">The Fattr4 structure containing encoded attributes from the server response.</param>
+        /// <returns>A dictionary mapping attribute IDs to their decoded values (typed objects like uint64_t, mode4, Nfstime4).</returns>
+        public static Dictionary<int, Object> DecodeType(Fattr4 attributes)
         {
             Dictionary<int, Object> attr = new Dictionary<int, Object>();
 
-            int[] mask = new int[attributes.attrmask.value.Length];
+            int[] mask = new int[attributes.Attrmask.Value.Length];
             for (int i = 0; i < mask.Length; i++)
             {
-                mask[i] = attributes.attrmask.value[i].value;
+                mask[i] = attributes.Attrmask.Value[i].Value;
             }
 
-            XdrDecodingStream xdr = new XdrBufferDecodingStream(attributes.attr_vals.value);
-            xdr.beginDecoding();
+            XdrDecodingStream xdr = new XdrBufferDecodingStream(attributes.Attr_vals.Value);
+            xdr.BeginDecoding();
 
             if (mask.Length != 0)
             {
@@ -62,65 +74,62 @@ namespace NFSLibrary.Protocols.V4.RPC.Stubs
                 }
             }
 
-            xdr.endDecoding();
+            xdr.EndDecoding();
 
             return attr;
         }
 
+        /// <summary>
+        /// Decodes a specific attribute from XDR stream and adds it to the attribute dictionary.
+        /// Currently supports decoding SIZE, MODE, TYPE, and various time attributes.
+        /// Unsupported attributes are silently skipped.
+        /// </summary>
+        /// <param name="attr">The dictionary to add the decoded attribute to.</param>
+        /// <param name="fattr">The attribute ID to decode (e.g., FATTR4_SIZE, FATTR4_MODE).</param>
+        /// <param name="xdr">The XDR decoding stream positioned at the attribute value.</param>
         private static void xdr2fattr(Dictionary<int, Object> attr, int fattr, XdrDecodingStream xdr)
         {
             switch (fattr)
             {
                 case NFSv4Protocol.FATTR4_SIZE:
-                    uint64_t size = new uint64_t();
-                    size.xdrDecode(xdr);
+                    Uint64T size = new Uint64T();
+                    size.XdrDecode(xdr);
                     attr.Add(fattr, size);
                     break;
 
                 case NFSv4Protocol.FATTR4_MODE:
-                    mode4 mode = new mode4();
-                    mode.xdrDecode(xdr);
+                    Mode4 mode = new Mode4();
+                    mode.XdrDecode(xdr);
                     attr.Add(fattr, mode);
                     break;
 
                 case NFSv4Protocol.FATTR4_TYPE:
-                    fattr4_type type = new fattr4_type();
-                    type.xdrDecode(xdr);
+                    Fattr4Type type = new Fattr4Type();
+                    type.XdrDecode(xdr);
                     attr.Add(fattr, type);
                     break;
 
                 case NFSv4Protocol.FATTR4_TIME_CREATE:
-                    nfstime4 time = new nfstime4();
-                    time.xdrDecode(xdr);
+                    Nfstime4 time = new Nfstime4();
+                    time.XdrDecode(xdr);
                     attr.Add(fattr, time);
                     break;
 
                 case NFSv4Protocol.FATTR4_TIME_ACCESS:
-                    nfstime4 time2 = new nfstime4();
-                    time2.xdrDecode(xdr);
+                    Nfstime4 time2 = new Nfstime4();
+                    time2.XdrDecode(xdr);
                     attr.Add(fattr, time2);
                     break;
 
                 case NFSv4Protocol.FATTR4_TIME_MODIFY:
-                    nfstime4 time3 = new nfstime4();
-                    time3.xdrDecode(xdr);
+                    Nfstime4 time3 = new Nfstime4();
+                    time3.XdrDecode(xdr);
                     attr.Add(fattr, time3);
                     break;
-                /*case NFSv4Protocol.FATTR4_OWNER :
-    // TODO: use princilat
-    utf8str_cs owner = new utf8str_cs ();
-    owner.xdrDecode(xdr);
-    String new_owner = new String(owner.value.value);
-    attr.Add(fattr,new_owner );
-    break;
 
-    case NFSv4Protocol.FATTR4_OWNER_GROUP :
-    // TODO: use princilat
-    utf8str_cs owner_group = new utf8str_cs ();
-    owner_group.xdrDecode(xdr);
-    String new_group = new String(owner_group.value.value);
-    attr.Add(fattr,new_group );
-    break;*/
+                // Note: Fattr4Owner and Fattr4OwnerGroup parsing not implemented
+                // These would require principal name handling (user@domain format)
+
                 default:
                     break;
             }

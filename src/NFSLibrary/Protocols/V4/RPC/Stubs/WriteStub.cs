@@ -1,25 +1,41 @@
-﻿namespace NFSLibrary.Protocols.V4.RPC.Stubs
+namespace NFSLibrary.Protocols.V4.RPC.Stubs
 {
+    /// <summary>
+    /// Provides stub methods for creating NFSv4 WRITE operation requests.
+    /// The WRITE operation writes data to a regular file that has been opened with the OPEN operation.
+    /// It requires a valid stateid obtained from the OPEN operation and supports writing data
+    /// at specific offsets in the file. This implementation uses UNSTABLE4 mode for better performance,
+    /// which allows the server to cache writes before committing them to stable storage.
+    /// </summary>
     internal class WriteStub
     {
-        public static nfs_argop4 generateRequest(long offset, byte[] data, stateid4 stateid)
+        /// <summary>
+        /// Generates a WRITE operation request to write data to a file.
+        /// Uses UNSTABLE4 mode by default, which allows server-side caching for better performance.
+        /// For guaranteed synchronous writes, change the stable mode to FILE_SYNC4.
+        /// </summary>
+        /// <param name="offset">The offset in the file to start writing at (in bytes).</param>
+        /// <param name="data">The data to write to the file.</param>
+        /// <param name="stateid">The state ID of the open file obtained from OPEN operation.</param>
+        /// <returns>An NfsArgop4 structure containing the WRITE operation request.</returns>
+        public static NfsArgop4 GenerateRequest(long offset, byte[] data, Stateid4 stateid)
         {
-            WRITE4args args = new WRITE4args();
+            Write4Args args = new Write4Args();
 
             //enable this for sycronized stable writes
-            //args.stable = stable_how4.FILE_SYNC4;
+            //args.Stable = StableHow4.FILE_SYNC4;
 
-            args.stable = stable_how4.UNSTABLE4;
+            args.Stable = StableHow4.UNSTABLE4;
 
-            args.offset = new offset4(new uint64_t(offset));
+            args.Offset = new Offset4(new Uint64T(offset));
 
-            args.stateid = stateid;
+            args.Stateid = stateid;
 
-            args.data = data;
+            args.Data = data;
 
-            nfs_argop4 op = new nfs_argop4();
-            op.argop = nfs_opnum4.OP_WRITE;
-            op.opwrite = args;
+            NfsArgop4 op = new NfsArgop4();
+            op.Argop = NfsOpnum4.OP_WRITE;
+            op.Opwrite = args;
 
             return op;
         }

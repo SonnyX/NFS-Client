@@ -4,39 +4,57 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-using org.acplt.oncrpc.server;
-using System.Net;
-
-/**
- */
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
+    using System.Net;
+    /// <summary>
+    /// Represents the server stub for NFS v2 protocol operations.
+    /// </summary>
     public abstract class NFSv2ProtocolServerStub : OncRpcServerStub, OncRpcDispatchable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolServerStub"/> class.
+        /// </summary>
         public NFSv2ProtocolServerStub()
             : this(0)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolServerStub"/> class.
+        /// </summary>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv2ProtocolServerStub(int port)
             : this(null, port)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2ProtocolServerStub"/> class.
+        /// </summary>
+        /// <param name="bindAddr">The address to bind to.</param>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv2ProtocolServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
+            Info = new OncRpcServerTransportRegistrationInfo[] {
             new OncRpcServerTransportRegistrationInfo(NFSv2Protocol.NFS_PROGRAM, 2),
         };
 
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches incoming ONC/RPC calls to the appropriate handler methods.
+        /// </summary>
+        /// <param name="call">The call information object.</param>
+        /// <param name="program">The program number.</param>
+        /// <param name="version">The version number.</param>
+        /// <param name="procedure">The procedure number.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 2)
             {
@@ -231,40 +249,124 @@ namespace NFSLibrary.Protocols.V2.RPC
             { call.failProgramUnavailable(); }
         }
 
+        /// <summary>
+        /// Handles the NFSPROC_NULL procedure to test server availability.
+        /// </summary>
         public abstract void NFSPROC_NULL();
 
+        /// <summary>
+        /// Handles the NFSPROC_GETATTR procedure to get file attributes.
+        /// </summary>
+        /// <param name="arg1">The file handle.</param>
+        /// <returns>The file status result.</returns>
         public abstract FileStatus NFSPROC_GETATTR(NFSHandle arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_SETATTR procedure to set file attributes.
+        /// </summary>
+        /// <param name="arg1">The file arguments containing the handle and attributes to set.</param>
+        /// <returns>The file status result.</returns>
         public abstract FileStatus NFSPROC_SETATTR(CreateArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_ROOT procedure (obsolete).
+        /// </summary>
         public abstract void NFSPROC_ROOT();
 
+        /// <summary>
+        /// Handles the NFSPROC_LOOKUP procedure to look up a file name.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The item operation status result.</returns>
         public abstract ItemOperationStatus NFSPROC_LOOKUP(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_READLINK procedure to read a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The file handle of the symbolic link.</param>
+        /// <returns>The link status result containing the link target.</returns>
         public abstract LinkStatus NFSPROC_READLINK(NFSHandle arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_READ procedure to read data from a file.
+        /// </summary>
+        /// <param name="arg1">The read arguments containing the file handle, offset, and count.</param>
+        /// <returns>The read status result containing the file data.</returns>
         public abstract ReadStatus NFSPROC_READ(ReadArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_WRITECACHE procedure (obsolete).
+        /// </summary>
         public abstract void NFSPROC_WRITECACHE();
 
+        /// <summary>
+        /// Handles the NFSPROC_WRITE procedure to write data to a file.
+        /// </summary>
+        /// <param name="arg1">The write arguments containing the file handle, offset, and data.</param>
+        /// <returns>The file status result.</returns>
         public abstract FileStatus NFSPROC_WRITE(WriteArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_CREATE procedure to create a file.
+        /// </summary>
+        /// <param name="arg1">The create arguments containing the directory and file attributes.</param>
+        /// <returns>The item operation status result.</returns>
         public abstract ItemOperationStatus NFSPROC_CREATE(CreateArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_REMOVE procedure to remove a file.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the directory handle and file name.</param>
+        /// <returns>The NFS status code.</returns>
         public abstract int NFSPROC_REMOVE(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_RENAME procedure to rename a file.
+        /// </summary>
+        /// <param name="arg1">The rename arguments containing the source and destination.</param>
+        /// <returns>The NFS status code.</returns>
         public abstract int NFSPROC_RENAME(RenameArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_LINK procedure to create a hard link.
+        /// </summary>
+        /// <param name="arg1">The link arguments containing the source and link location.</param>
+        /// <returns>The NFS status code.</returns>
         public abstract int NFSPROC_LINK(LinkArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_SYMLINK procedure to create a symbolic link.
+        /// </summary>
+        /// <param name="arg1">The symlink arguments containing the link location and target.</param>
+        /// <returns>The NFS status code.</returns>
         public abstract int NFSPROC_SYMLINK(SymlinkArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_MKDIR procedure to create a directory.
+        /// </summary>
+        /// <param name="arg1">The create arguments containing the parent directory and new directory attributes.</param>
+        /// <returns>The item operation status result.</returns>
         public abstract ItemOperationStatus NFSPROC_MKDIR(CreateArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_RMDIR procedure to remove a directory.
+        /// </summary>
+        /// <param name="arg1">The item operation arguments containing the parent directory handle and directory name.</param>
+        /// <returns>The NFS status code.</returns>
         public abstract int NFSPROC_RMDIR(ItemOperationArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_READDIR procedure to read directory entries.
+        /// </summary>
+        /// <param name="arg1">The item arguments containing the directory handle and pagination cookie.</param>
+        /// <returns>The item status result containing directory entries.</returns>
         public abstract ItemStatus NFSPROC_READDIR(ItemArguments arg1);
 
+        /// <summary>
+        /// Handles the NFSPROC_STATFS procedure to get file system statistics.
+        /// </summary>
+        /// <param name="arg1">The file handle of the file system.</param>
+        /// <returns>The file system statistics status result.</returns>
         public abstract FSStatStatus NFSPROC_STATFS(NFSHandle arg1);
     }
 

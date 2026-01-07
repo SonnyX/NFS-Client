@@ -3,26 +3,59 @@
  * jrpcgen is part of the "Remote Tea.Net" ONC/RPC package for C#
  * See http://remotetea.sourceforge.net for details
  */
-/**
- * A collection of constants used by the "NFSv3MountProtocol" ONC/RPC program.
- */
 
 namespace NFSLibrary.Protocols.V3.RPC.Mount
 {
+    /// <summary>
+    /// Constants used by the NFSv3 Mount Protocol for RPC communication.
+    /// </summary>
     public class NFSv3MountProtocol
     {
+        /// <summary>
+        /// The RPC program number for the Mount protocol.
+        /// </summary>
         public const int MOUNTPROG = 100005;
+        /// <summary>
+        /// The version number of the Mount protocol.
+        /// </summary>
         public const int MOUNTVERS = 3;
 
+        /// <summary>
+        /// Null procedure - does nothing, used for pinging the server.
+        /// </summary>
         public const int MOUNTPROC3_NULL = 0;
+        /// <summary>
+        /// Mount an export path and return a file handle.
+        /// </summary>
         public const int MOUNTPROC3_MNT = 1;
+        /// <summary>
+        /// Dump the list of currently mounted file systems.
+        /// </summary>
         public const int MOUNTPROC3_DUMP = 2;
+        /// <summary>
+        /// Unmount a previously mounted file system.
+        /// </summary>
         public const int MOUNTPROC3_UMNT = 3;
+        /// <summary>
+        /// Unmount all file systems mounted by the client.
+        /// </summary>
         public const int MOUNTPROC3_UMNTALL = 4;
+        /// <summary>
+        /// Get the list of exported file systems.
+        /// </summary>
         public const int MOUNTPROC3_EXPORT = 5;
 
+        /// <summary>
+        /// Maximum length of a mount path.
+        /// </summary>
         public const int MNTPATHLEN = 1024;
+        /// <summary>
+        /// Maximum length of a mount name.
+        /// </summary>
         public const int MNTNAMLEN = 255;
+        /// <summary>
+        /// Size of a file handle.
+        /// </summary>
         public const int FHSIZE = 64;
     }
 

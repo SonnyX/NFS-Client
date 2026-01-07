@@ -4,50 +4,74 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for directory item operations for NFS v3 protocol operations.
+    /// </summary>
     public class ItemOperationArguments : XdrAble
     {
-        private NFSHandle _dir;
-        private Name _name;
+        private NFSHandle _Dir;
+        private Name _Name;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ItemOperationArguments"/> class.
+        /// </summary>
         public ItemOperationArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ItemOperationArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public ItemOperationArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._dir.xdrEncode(xdr);
-            this._name.xdrEncode(xdr);
+            this._Dir.XdrEncode(xdr);
+            this._Name.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._dir = new NFSHandle();
-            this._dir.Version = V3.RPC.NFSv3Protocol.NFS_V3;
-            this._dir.xdrDecode(xdr);
-            this._name = new Name(xdr);
+            this._Dir = new NFSHandle();
+            this._Dir.Version = V3.RPC.NFSv3Protocol.NFS_V3;
+            this._Dir.XdrDecode(xdr);
+            this._Name = new Name(xdr);
         }
 
+        /// <summary>
+        /// Gets or sets the directory handle containing the item.
+        /// </summary>
         public NFSHandle Directory
         {
             get
-            { return this._dir; }
+            { return this._Dir; }
             set
-            { this._dir = value; }
+            { this._Dir = value; }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the item within the directory.
+        /// </summary>
         public Name Name
         {
             get
-            { return this._name; }
+            { return this._Name; }
             set
-            { this._name = value; }
+            { this._Name = value; }
         }
     }
 

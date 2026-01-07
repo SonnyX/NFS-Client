@@ -1,4 +1,4 @@
-﻿namespace Test.Client
+namespace Test.Client
 {
     using System;
     using System.Collections.Generic;
@@ -29,7 +29,7 @@
 
         private static bool _RunForever = true;
         private static string _Hostname = "192.168.254.129";
-        private static NfsClient.NfsVersion _Version = NfsClient.NfsVersion.V3;
+        private static NfsVersion _Version = NfsVersion.V3;
         private static string _Share = "/srv";
 
         public static void Main(string[] args)

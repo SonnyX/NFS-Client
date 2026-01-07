@@ -4,39 +4,59 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-using org.acplt.oncrpc.server;
-using System.Net;
-
-/**
- */
-
 namespace NFSLibrary.Protocols.V3.RPC.Mount
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
+    using System.Net;
+
+    /// <summary>
+    /// Abstract server stub for the NFSv3 Mount Protocol.
+    /// Dispatches incoming RPC calls to the appropriate mount procedure methods.
+    /// </summary>
     public abstract class NFSv3MountProtocolServerStub : OncRpcServerStub, OncRpcDispatchable
     {
+        /// <summary>
+        /// Initializes a new instance of the NFSv3MountProtocolServerStub class with default port.
+        /// </summary>
         public NFSv3MountProtocolServerStub()
             : this(0)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the NFSv3MountProtocolServerStub class with specified port.
+        /// </summary>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv3MountProtocolServerStub(int port)
             : this(null, port)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the NFSv3MountProtocolServerStub class with specified address and port.
+        /// </summary>
+        /// <param name="bindAddr">The IP address to bind to.</param>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv3MountProtocolServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
+            Info = new OncRpcServerTransportRegistrationInfo[] {
             new OncRpcServerTransportRegistrationInfo(NFSv3MountProtocol.MOUNTPROG, 3),
         };
 
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches incoming ONC/RPC calls to the appropriate mount procedure method.
+        /// </summary>
+        /// <param name="call">The RPC call information.</param>
+        /// <param name="program">The RPC program number.</param>
+        /// <param name="version">The RPC program version.</param>
+        /// <param name="procedure">The procedure number to call.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 3)
             {
@@ -105,16 +125,39 @@ namespace NFSLibrary.Protocols.V3.RPC.Mount
             { call.failProgramUnavailable(); }
         }
 
+        /// <summary>
+        /// Null procedure - does nothing, used for pinging the server.
+        /// </summary>
         public abstract void MOUNTPROC3_NULL();
 
+        /// <summary>
+        /// Mounts an export path and returns the file handle and mount status.
+        /// </summary>
+        /// <param name="arg1">The directory path to mount.</param>
+        /// <returns>The mount status and file handle.</returns>
         public abstract MountStatus MOUNTPROC3_MNT(Name arg1);
 
+        /// <summary>
+        /// Retrieves the list of currently mounted file systems.
+        /// </summary>
+        /// <returns>The list of mounted file systems.</returns>
         public abstract MountList MOUNTPROC3_DUMP();
 
+        /// <summary>
+        /// Unmounts a previously mounted file system.
+        /// </summary>
+        /// <param name="arg1">The directory path to unmount.</param>
         public abstract void MOUNTPROC3_UMNT(Name arg1);
 
+        /// <summary>
+        /// Unmounts all file systems mounted by this client.
+        /// </summary>
         public abstract void MOUNTPROC3_UMNTALL();
 
+        /// <summary>
+        /// Retrieves the list of exported file systems from the server.
+        /// </summary>
+        /// <returns>The list of exported file systems.</returns>
         public abstract Exports MOUNTPROC3_EXPORT();
     }
 

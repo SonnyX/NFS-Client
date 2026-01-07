@@ -4,82 +4,67 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V3.RPC
 {
+    using NFSLibrary.Rpc;
+
+    /// <summary>
+    /// Represents arguments for symbolic link creation operations for NFS v3 protocol operations.
+    /// </summary>
     public class SymlinkArguments : XdrAble
     {
-        private ItemOperationArguments _where;
-        private SymlinkData _symlink;
+        private ItemOperationArguments _Where;
+        private SymlinkData _Symlink;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SymlinkArguments"/> class.
+        /// </summary>
         public SymlinkArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SymlinkArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public SymlinkArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._where.xdrEncode(xdr);
-            this._symlink.xdrEncode(xdr);
+            this._Where.XdrEncode(xdr);
+            this._Symlink.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._where = new ItemOperationArguments(xdr);
-            this._symlink = new SymlinkData(xdr);
+            this._Where = new ItemOperationArguments(xdr);
+            this._Symlink = new SymlinkData(xdr);
         }
 
+        /// <summary>
+        /// Gets the location (directory and name) where the symbolic link should be created.
+        /// </summary>
         public ItemOperationArguments Where
         {
             get
-            { return this._where; }
+            { return this._Where; }
         }
 
+        /// <summary>
+        /// Gets the symbolic link data including target path and attributes.
+        /// </summary>
         public SymlinkData Symlink
         {
             get
-            { return this._symlink; }
+            { return this._Symlink; }
         }
     }
-
-    public class SymlinkData : XdrAble
-    {
-        private MakeAttributes _symlink_attributes;
-        private Name _symlink_data;
-
-        public SymlinkData()
-        { }
-
-        public SymlinkData(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
-
-        public void xdrEncode(XdrEncodingStream xdr)
-        {
-            this._symlink_attributes.xdrEncode(xdr);
-            this._symlink_data.xdrEncode(xdr);
-        }
-
-        public void xdrDecode(XdrDecodingStream xdr)
-        {
-            this._symlink_attributes = new MakeAttributes(xdr);
-            this._symlink_data = new Name(xdr);
-        }
-
-        public MakeAttributes Attributes
-        {
-            get
-            { return this._symlink_attributes; }
-        }
-
-        public Name Name
-        {
-            get
-            { return this._symlink_data; }
-        }
-    }
-
-    // End of SYMLINK3args.cs
 }

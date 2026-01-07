@@ -1,14 +1,25 @@
-﻿namespace NFSLibrary.Protocols.V4.RPC.Stubs
+namespace NFSLibrary.Protocols.V4.RPC.Stubs
 {
+    /// <summary>
+    /// Provides stub methods for creating NFSv4 ACCESS operation requests.
+    /// The ACCESS operation checks the access permissions for the current file handle,
+    /// allowing clients to verify whether they have specific types of access (read, write, execute)
+    /// before attempting file operations.
+    /// </summary>
     internal class AcessStub
     {
-        public static nfs_argop4 generateRequest(uint32_t acessargs)
+        /// <summary>
+        /// Generates an ACCESS operation request with the specified access arguments.
+        /// </summary>
+        /// <param name="acessargs">The access arguments specifying the access mode.</param>
+        /// <returns>An NfsArgop4 structure containing the ACCESS operation request.</returns>
+        public static NfsArgop4 GenerateRequest(Uint32T acessargs)
         {
-            nfs_argop4 op = new nfs_argop4();
-            op.argop = nfs_opnum4.OP_ACCESS;
+            NfsArgop4 op = new NfsArgop4();
+            op.Argop = NfsOpnum4.OP_ACCESS;
 
-            op.opaccess = new ACCESS4args();
-            op.opaccess.access = acessargs;
+            op.Opaccess = new Access4Args();
+            op.Opaccess.Access = acessargs;
 
             return op;
         }

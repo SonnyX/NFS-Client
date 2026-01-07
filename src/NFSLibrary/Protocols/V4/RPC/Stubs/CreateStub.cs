@@ -1,21 +1,33 @@
-﻿using System;
-
 namespace NFSLibrary.Protocols.V4.RPC.Stubs
 {
+    using System;
+
+    /// <summary>
+    /// Provides stub methods for creating NFSv4 CREATE operation requests.
+    /// The CREATE operation creates a new non-regular file object (directory, named pipe, etc.)
+    /// in the current directory. This implementation specifically creates directories.
+    /// For regular files, use the OPEN operation instead.
+    /// </summary>
     internal class CreateStub
     {
-        public static nfs_argop4 generateRequest(String name, fattr4 attribs)
+        /// <summary>
+        /// Generates a CREATE operation request to create a new directory.
+        /// </summary>
+        /// <param name="name">The name of the directory to create.</param>
+        /// <param name="attribs">The file attributes for the new directory.</param>
+        /// <returns>An NfsArgop4 structure containing the CREATE operation request.</returns>
+        public static NfsArgop4 GenerateRequest(String name, Fattr4 attribs)
         {
-            nfs_argop4 op = new nfs_argop4();
+            NfsArgop4 op = new NfsArgop4();
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
-            op.argop = nfs_opnum4.OP_CREATE;
-            op.opcreate = new CREATE4args();
-            op.opcreate.objname = new component4();
-            op.opcreate.objname.value = new utf8str_cs(new utf8string(encoding.GetBytes(name)));
-            op.opcreate.createattrs = attribs;
-            op.opcreate.objtype = new createtype4();
+            op.Argop = NfsOpnum4.OP_CREATE;
+            op.Opcreate = new Create4Args();
+            op.Opcreate.Objname = new Component4();
+            op.Opcreate.Objname.Value = new Utf8strCs(new Utf8string(encoding.GetBytes(name)));
+            op.Opcreate.Createattrs = attribs;
+            op.Opcreate.Objtype = new Createtype4();
             //we will create only directories
-            op.opcreate.objtype.type = nfs_ftype4.NF4DIR;
+            op.Opcreate.Objtype.Type = NfsFtype4.NF4DIR;
 
             return op;
         }

@@ -4,53 +4,79 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-
 namespace NFSLibrary.Protocols.V2.RPC
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    /// <summary>
+    /// Represents arguments for NFS v2 symbolic link operations.
+    /// </summary>
     public class SymlinkArguments : XdrAble
     {
-        private ItemOperationArguments _from;
-        private Name _to;
-        private CreateAttributes _attributes;
+        private ItemOperationArguments _From;
+        private Name _To;
+        private CreateAttributes _Attributes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SymlinkArguments"/> class.
+        /// </summary>
         public SymlinkArguments()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SymlinkArguments"/> class by decoding from an XDR stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
         public SymlinkArguments(XdrDecodingStream xdr)
-        { xdrDecode(xdr); }
+        { XdrDecode(xdr); }
 
-        public void xdrEncode(XdrEncodingStream xdr)
+        /// <summary>
+        /// Encodes this instance to an XDR encoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR encoding stream to write to.</param>
+        public void XdrEncode(XdrEncodingStream xdr)
         {
-            this._from.xdrEncode(xdr);
-            this._to.xdrEncode(xdr);
-            this._attributes.xdrEncode(xdr);
+            this._From.XdrEncode(xdr);
+            this._To.XdrEncode(xdr);
+            this._Attributes.XdrEncode(xdr);
         }
 
-        public void xdrDecode(XdrDecodingStream xdr)
+        /// <summary>
+        /// Decodes this instance from an XDR decoding stream.
+        /// </summary>
+        /// <param name="xdr">The XDR decoding stream to read from.</param>
+        public void XdrDecode(XdrDecodingStream xdr)
         {
-            this._from = new ItemOperationArguments(xdr);
-            this._to = new Name(xdr);
-            this._attributes = new CreateAttributes(xdr);
+            this._From = new ItemOperationArguments(xdr);
+            this._To = new Name(xdr);
+            this._Attributes = new CreateAttributes(xdr);
         }
 
+        /// <summary>
+        /// Gets the source location for the symbolic link.
+        /// </summary>
         public ItemOperationArguments From
         {
             get
-            { return this._from; }
+            { return this._From; }
         }
 
+        /// <summary>
+        /// Gets the target path for the symbolic link.
+        /// </summary>
         public Name To
         {
             get
-            { return this._to; }
+            { return this._To; }
         }
 
+        /// <summary>
+        /// Gets the attributes for the symbolic link.
+        /// </summary>
         public CreateAttributes Attributes
         {
             get
-            { return this._attributes; }
+            { return this._Attributes; }
         }
     }
 

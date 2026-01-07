@@ -4,39 +4,58 @@
  * See http://remotetea.sourceforge.net for details
  */
 
-using NFSLibrary.Protocols.Commons;
-using org.acplt.oncrpc;
-using org.acplt.oncrpc.server;
-using System.Net;
-
-/**
- */
-
 namespace NFSLibrary.Protocols.V2.RPC.Mount
 {
+    using NFSLibrary.Protocols.Commons;
+    using NFSLibrary.Rpc;
+    using NFSLibrary.Rpc.Server;
+    using System.Net;
+
+    /// <summary>
+    /// Represents the server stub for NFS v2 mount protocol operations.
+    /// </summary>
     public abstract class NFSv2MountProtocolServerStub : OncRpcServerStub, OncRpcDispatchable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolServerStub"/> class.
+        /// </summary>
         public NFSv2MountProtocolServerStub()
             : this(0)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolServerStub"/> class.
+        /// </summary>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv2MountProtocolServerStub(int port)
             : this(null, port)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NFSv2MountProtocolServerStub"/> class.
+        /// </summary>
+        /// <param name="bindAddr">The address to bind to.</param>
+        /// <param name="port">The port number to bind to.</param>
         public NFSv2MountProtocolServerStub(IPAddress bindAddr, int port)
         {
-            info = new OncRpcServerTransportRegistrationInfo[] {
+            Info = new OncRpcServerTransportRegistrationInfo[] {
             new OncRpcServerTransportRegistrationInfo(NFSv2MountProtocol.MOUNTPROG, 1),
         };
 
-            transports = new OncRpcServerTransport[] {
-            new OncRpcUdpServerTransport(this, bindAddr, port, info, 32768),
-            new OncRpcTcpServerTransport(this, bindAddr, port, info, 32768)
+            Transports = new OncRpcServerTransport[] {
+            new OncRpcUdpServerTransport(this, bindAddr, port, Info, 32768),
+            new OncRpcTcpServerTransport(this, bindAddr, port, Info, 32768)
         };
         }
 
-        public void dispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
+        /// <summary>
+        /// Dispatches incoming ONC/RPC calls to the appropriate handler methods.
+        /// </summary>
+        /// <param name="call">The call information object.</param>
+        /// <param name="program">The program number.</param>
+        /// <param name="version">The version number.</param>
+        /// <param name="procedure">The procedure number.</param>
+        public void DispatchOncRpcCall(OncRpcCallInformation call, int program, int version, int procedure)
         {
             if (version == 1)
             {
@@ -107,16 +126,39 @@ namespace NFSLibrary.Protocols.V2.RPC.Mount
             { call.failProgramUnavailable(); }
         }
 
+        /// <summary>
+        /// Handles the MOUNTPROC_NULL procedure to test server availability.
+        /// </summary>
         public abstract void MOUNTPROC_NULL();
 
+        /// <summary>
+        /// Handles the MOUNTPROC_MNT procedure to mount a file system.
+        /// </summary>
+        /// <param name="arg1">The directory path to mount.</param>
+        /// <returns>The mount status result.</returns>
         public abstract MountStatus MOUNTPROC_MNT(Name arg1);
 
+        /// <summary>
+        /// Handles the MOUNTPROC_DUMP procedure to retrieve the list of mounted file systems.
+        /// </summary>
+        /// <returns>The mount list result.</returns>
         public abstract MountList MOUNTPROC_DUMP();
 
+        /// <summary>
+        /// Handles the MOUNTPROC_UMNT procedure to unmount a file system.
+        /// </summary>
+        /// <param name="arg1">The directory path to unmount.</param>
         public abstract void MOUNTPROC_UMNT(Name arg1);
 
+        /// <summary>
+        /// Handles the MOUNTPROC_UMNTALL procedure to unmount all file systems.
+        /// </summary>
         public abstract void MOUNTPROC_UMNTALL();
 
+        /// <summary>
+        /// Handles the MOUNTPROC_EXPORT procedure to retrieve the export list.
+        /// </summary>
+        /// <returns>The exports result.</returns>
         public abstract Exports MOUNTPROC_EXPORT();
     }
 
